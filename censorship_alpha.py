@@ -293,13 +293,31 @@ def fetch_nansen_data():
         "Base smart money flows"
     )
 
-    # 13. Polymarket prediction markets (geopolitical events affecting censorship)
+    # 13. WHERE DOES THE MONEY GO? — Binance hot wallet counterparties
+    data["binance_counterparties"] = run_nansen(
+        ["research", "profiler", "counterparties", "--address", BINANCE_HOT_WALLETS["ethereum"], "--chain", "ethereum", "--limit", "15"],
+        "Binance counterparties"
+    )
+
+    # 14. Historical smart money holdings (30d trend)
+    data["eth_hist_holdings"] = run_nansen(
+        ["research", "smart-money", "historical-holdings", "--chain", "ethereum", "--days", "30", "--limit", "10"],
+        "ETH 30d holdings trend"
+    )
+
+    # 15. Perpetual trades (Hyperliquid — where CEX-blocked traders go for leverage)
+    data["perp_trades"] = run_nansen(
+        ["research", "smart-money", "perp-trades", "--limit", "20"],
+        "Perpetual trades"
+    )
+
+    # 16. Polymarket prediction markets (geopolitical events)
     data["prediction_markets"] = run_nansen(
         ["research", "pm", "market-screener", "--limit", "20"],
         "Polymarket events"
     )
 
-    # 14. Search for privacy/VPN tokens (directly benefit from exchange censorship)
+    # 17. Search for privacy/VPN tokens
     data["privacy_search"] = run_nansen(
         ["research", "search", "--query", "privacy VPN decentralized exchange", "--limit", "10"],
         "Privacy/VPN tokens"
@@ -690,7 +708,80 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
     <strong>Key insight:</strong> Exchange censorship is a strong proxy for overall internet freedom. Countries that block crypto exchanges almost always block social media, news, and communication tools too. Smart money flows on Binance's home chain (BNB) serve as a leading indicator of broader censorship trends.
   </div>
 
-  <h2>6. Top Movers by Chain</h2>
+  <h2>6. Where Does the Money Go?</h2>
+  <p>Binance hot wallet counterparty analysis — tracking the top addresses receiving funds from Binance's primary Ethereum wallet.</p>"""
+
+    # Counterparty data
+    cp_data = nansen_data.get("binance_counterparties")
+    if cp_data and cp_data.get("success"):
+        counterparties = cp_data.get("data", {}).get("data", [])
+        if counterparties:
+            html += """
+  <table>
+    <tr><th>Counterparty</th><th>Label</th><th>Volume Out (USD)</th><th>Interactions</th><th>Top Tokens</th></tr>"""
+            total_out = sum(c.get("volume_out_usd", 0) for c in counterparties[:10])
+            for c in counterparties[:8]:
+                addr = c.get("counterparty_address", "")[:10] + "..."
+                labels = c.get("counterparty_address_label", [])
+                label = labels[0] if labels else "Unknown"
+                vol_out = c.get("volume_out_usd", 0)
+                interactions = c.get("interaction_count", 0)
+                tokens = c.get("tokens_info", [])
+                top_tokens = ", ".join(t.get("token_symbol", "?") for t in tokens[:4])
+                pct = (vol_out / total_out * 100) if total_out > 0 else 0
+                html += f"""
+    <tr>
+      <td><code>{addr}</code></td>
+      <td><span class="tag tag-yellow">{label}</span></td>
+      <td><strong>${vol_out:,.0f}</strong> ({pct:.1f}%)</td>
+      <td>{interactions:,}</td>
+      <td>{top_tokens}</td>
+    </tr>"""
+            html += f"""
+  </table>
+  <div class="insight">
+    <strong>The Answer:</strong> ${total_out:,.0f} tracked outflow from Binance's hot wallet across {len(counterparties)} counterparties.
+    The top tokens moving: {', '.join(set(t.get('token_symbol','') for c in counterparties[:5] for t in c.get('tokens_info',[])[:2]))}.
+    This is where the money goes when users withdraw from the world's most-blocked exchange.
+  </div>"""
+        else:
+            html += "<p>No counterparty data available.</p>"
+    else:
+        html += "<p>Counterparty data unavailable.</p>"
+
+    # Perp trades section
+    perp_data = nansen_data.get("perp_trades")
+    if perp_data and perp_data.get("success"):
+        perps = perp_data.get("data", {}).get("data", [])
+        if perps:
+            longs = sum(1 for p in perps if p.get("side") == "Long")
+            shorts = sum(1 for p in perps if p.get("side") == "Short")
+            total_val = sum(p.get("value_usd", 0) for p in perps)
+            html += f"""
+  <h3 style="color: #f39c12; margin-top: 1.5rem;">Perpetual Futures (Hyperliquid)</h3>
+  <p>When centralized exchanges are blocked, leverage-seeking traders move to decentralized perps. Current smart money activity on Hyperliquid:</p>
+  <div class="stat-grid">
+    <div class="stat"><div class="value">{longs}</div><div class="label">Longs</div></div>
+    <div class="stat"><div class="value">{shorts}</div><div class="label">Shorts</div></div>
+    <div class="stat"><div class="value">${total_val:,.0f}</div><div class="label">Total Volume</div></div>
+  </div>
+  <table>
+    <tr><th>Token</th><th>Side</th><th>Value</th><th>Label</th></tr>"""
+            for p in perps[:6]:
+                side_color = "ok" if p.get("side") == "Long" else "blocked"
+                html += f"""
+    <tr>
+      <td><strong>{p.get('token_symbol','?')}</strong></td>
+      <td class="{side_color}">{p.get('side','?')}</td>
+      <td>${p.get('value_usd',0):,.0f}</td>
+      <td>{p.get('trader_address_label','') or 'Smart Trader'}</td>
+    </tr>"""
+            html += """
+  </table>"""
+
+    html += f"""
+
+  <h2>7. Smart Money Top Movers</h2>
   <p>The tokens seeing the largest smart money net flows in the last 24 hours.</p>
   <table>
     <tr><th>Chain</th><th>Token</th><th>Market Cap</th><th>Net Flow (24h)</th><th>Net Flow (7d)</th><th>Net Flow (30d)</th></tr>"""
@@ -718,7 +809,7 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
     html += f"""
   </table>
 
-  <h2>7. Country Deep Dives</h2>"""
+  <h2>8. Country Deep Dives</h2>"""
 
     for code, s in top3:
         isps = s.get("isps", [])
@@ -746,7 +837,7 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
         if eth_real or bnb_real:
             has_holdings = True
             html += """
-  <h2>8. Smart Money Holdings — ETH vs BNB Ecosystem</h2>
+  <h2>9. Smart Money Holdings — ETH vs BNB Ecosystem</h2>
   <p>What are smart wallets holding on Ethereum vs BNB Chain? The composition reveals where institutional capital sits relative to censorship exposure.</p>
   <table>
     <tr><th>Ethereum Holdings</th><th>Market Cap</th><th>BNB Holdings</th><th>Market Cap</th></tr>"""
@@ -774,7 +865,7 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
             geo_markets = markets[:5]  # Fallback to top by volume
         if geo_markets:
             html += """
-  <h2>9. Prediction Markets — Geopolitical Signals</h2>
+  <h2>10. Prediction Markets — Geopolitical Signals</h2>
   <p>Polymarket events that could impact crypto censorship dynamics. Geopolitical events drive regulatory decisions which drive exchange blocks.</p>
   <table>
     <tr><th>Event</th><th>Price</th><th>24h Volume</th></tr>"""

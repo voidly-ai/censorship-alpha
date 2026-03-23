@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-23T11:15:34.843718+00:00",
+  "generated_at": "2026-03-23T11:27:34.872241+00:00",
   "sources": {
     "censorship": "Voidly API (voidly.ai) + Chainalysis 2026 + CoinGecko + Cloudwards",
     "onchain": "Nansen CLI (nansen.ai)"
@@ -8,14 +8,14 @@
     "CN": {
       "name": "China",
       "blocked": [
-        "okx.com",
-        "binance.com",
-        "kraken.com",
+        "kucoin.com",
         "gate.io",
         "coinbase.com",
-        "bybit.com",
         "crypto.com",
-        "kucoin.com"
+        "binance.com",
+        "kraken.com",
+        "bybit.com",
+        "okx.com"
       ],
       "accessible": [],
       "block_count": 8,
@@ -30,14 +30,14 @@
     "EG": {
       "name": "Egypt",
       "blocked": [
-        "okx.com",
-        "binance.com",
-        "kraken.com",
+        "kucoin.com",
         "gate.io",
         "coinbase.com",
-        "bybit.com",
         "crypto.com",
-        "kucoin.com"
+        "binance.com",
+        "kraken.com",
+        "bybit.com",
+        "okx.com"
       ],
       "accessible": [],
       "block_count": 8,
@@ -52,14 +52,14 @@
     "MM": {
       "name": "Myanmar",
       "blocked": [
-        "okx.com",
-        "binance.com",
-        "kraken.com",
+        "kucoin.com",
         "gate.io",
         "coinbase.com",
-        "bybit.com",
         "crypto.com",
-        "kucoin.com"
+        "binance.com",
+        "kraken.com",
+        "bybit.com",
+        "okx.com"
       ],
       "accessible": [],
       "block_count": 8,
@@ -74,12 +74,12 @@
     "IR": {
       "name": "Iran",
       "blocked": [
-        "okx.com",
-        "bybit.com",
         "binance.com",
         "kucoin.com",
         "kraken.com",
-        "coinbase.com"
+        "coinbase.com",
+        "bybit.com",
+        "okx.com"
       ],
       "accessible": [
         "gate.io",
@@ -97,9 +97,9 @@
     "BY": {
       "name": "Belarus",
       "blocked": [
-        "coinbase.com",
         "binance.com",
-        "kraken.com"
+        "kraken.com",
+        "coinbase.com"
       ],
       "accessible": [
         "kucoin.com",
@@ -120,9 +120,9 @@
     "TR": {
       "name": "Turkey",
       "blocked": [
-        "okx.com",
         "binance.com",
-        "kucoin.com"
+        "kucoin.com",
+        "okx.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -166,8 +166,8 @@
     "VN": {
       "name": "Vietnam",
       "blocked": [
-        "okx.com",
-        "binance.com"
+        "binance.com",
+        "okx.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -189,8 +189,8 @@
     "NG": {
       "name": "Nigeria",
       "blocked": [
-        "coinbase.com",
-        "binance.com"
+        "binance.com",
+        "coinbase.com"
       ],
       "accessible": [
         "kraken.com",
@@ -349,73 +349,73 @@
     }
   },
   "flow_metrics": {
-    "eth_inflow_24h": 61375.303114455935,
+    "eth_inflow_24h": 61379.50517184147,
     "eth_outflow_24h": 0,
-    "eth_net_24h": 61375.303114455935,
-    "eth_net_7d": 1178879.3411361864,
-    "eth_net_30d": -19767261.26623114,
+    "eth_net_24h": 61379.50517184147,
+    "eth_net_7d": -501554.52382404555,
+    "eth_net_30d": -25084630.23099805,
     "eth_tokens_tracked": 30,
-    "bnb_inflow_24h": 10622.830541118876,
+    "bnb_inflow_24h": 10723.673251464701,
     "bnb_outflow_24h": 0,
-    "bnb_net_24h": 10622.830541118876,
-    "bnb_net_7d": 35110.32428288358,
-    "bnb_net_30d": -4926931.616032801,
+    "bnb_net_24h": 10723.673251464701,
+    "bnb_net_7d": -1741.944287181944,
+    "bnb_net_30d": -434041.9569661613,
     "bnb_tokens_tracked": 30,
-    "sol_inflow_24h": 24990.631004707175,
+    "sol_inflow_24h": 25280.59769764007,
     "sol_outflow_24h": 0,
-    "sol_net_24h": 24990.631004707175,
-    "sol_net_7d": 43881.265793649014,
-    "sol_net_30d": -233516.02226731763,
+    "sol_net_24h": 25280.59769764007,
+    "sol_net_7d": 44171.23248658191,
+    "sol_net_30d": -233965.1114209349,
     "sol_tokens_tracked": 20,
-    "base_inflow_24h": 23916.285269082557,
+    "base_inflow_24h": 25636.96948896249,
     "base_outflow_24h": 0,
-    "base_net_24h": 23916.285269082557,
-    "base_net_7d": 24379.811259670634,
-    "base_net_30d": 17942.611821071525,
+    "base_net_24h": 25636.96948896249,
+    "base_net_7d": 26100.49547955057,
+    "base_net_30d": 19663.296040951467,
     "base_tokens_tracked": 15,
-    "eth_dex_volume": 3125.5601245677262,
+    "eth_dex_volume": 3187.7490211662007,
     "eth_dex_trades": 5,
-    "bnb_dex_volume": 98129.55290286908,
+    "bnb_dex_volume": 111672.18358436656,
     "bnb_dex_trades": 30,
-    "sol_dex_volume": 12083.954093406473,
+    "sol_dex_volume": 12740.139544081063,
     "sol_dex_trades": 20
   },
   "top_movers": {
     "eth": [
       {
-        "symbol": "AZTEC",
-        "net_24h": 0,
-        "net_7d": 0,
-        "net_30d": -4541.346717347819,
-        "mcap": 61520616
-      },
-      {
         "symbol": "AAVE",
         "net_24h": 0,
         "net_7d": 0,
         "net_30d": -26146439.333577618,
-        "mcap": 1602943753
+        "mcap": 1610252931
       },
       {
         "symbol": "FET",
         "net_24h": 0,
         "net_7d": -17678.467903838336,
         "net_30d": -17678.467903838336,
-        "mcap": 467205553
+        "mcap": 468910151
       },
       {
         "symbol": "ARKM",
         "net_24h": 0,
         "net_7d": -1547.0450689663473,
         "net_30d": -2550.0956329297605,
-        "mcap": 57125112
+        "mcap": 57340978
       },
       {
         "symbol": "SKY",
         "net_24h": 0,
         "net_7d": 0,
         "net_30d": 5387122.631338721,
-        "mcap": 1582640226
+        "mcap": 1597436432
+      },
+      {
+        "symbol": "OHM",
+        "net_24h": 0,
+        "net_7d": -268731.4340335517,
+        "net_30d": -332633.0357575047,
+        "mcap": 245921611
       }
     ],
     "bnb": [
@@ -424,14 +424,28 @@
         "net_24h": 1728.6952107985298,
         "net_7d": 1728.6952107985298,
         "net_30d": 1728.6952107985298,
-        "mcap": 71917873
+        "mcap": 71974724
       },
       {
-        "symbol": "SOL",
+        "symbol": "B",
+        "net_24h": 0,
+        "net_7d": -6920.689236445108,
+        "net_30d": 3078.69605408585,
+        "mcap": 212871908
+      },
+      {
+        "symbol": "CHANEL",
         "net_24h": 0,
         "net_7d": 0,
-        "net_30d": -665.0526543902548,
-        "mcap": 94676000
+        "net_30d": -35003.38974046356,
+        "mcap": 5161452282.46807
+      },
+      {
+        "symbol": "JPMORGAN",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": -124725.09546487207,
+        "mcap": 3969472189.19031
       },
       {
         "symbol": "CAR",
@@ -447,21 +461,21 @@
         "net_24h": 8650.666130904217,
         "net_7d": 792.3077004735969,
         "net_30d": -211761.03508049523,
-        "mcap": 7681796
+        "mcap": 7734079
       },
       {
         "symbol": "BUTTCOIN",
         "net_24h": 68.32934502062426,
         "net_7d": -5327.878575683088,
         "net_30d": 5895.081627600553,
-        "mcap": 16175399
+        "mcap": 16186956
       },
       {
         "symbol": "HYPE",
         "net_24h": 4.329272737315345,
         "net_7d": 4.329272737315345,
         "net_30d": -1041.2675780353618,
-        "mcap": 33534142
+        "mcap": 33525064
       }
     ],
     "base": [
@@ -470,7 +484,7 @@
         "net_24h": 645.9273792447001,
         "net_7d": 209.92016147773387,
         "net_30d": -14454.960595006247,
-        "mcap": 433686118
+        "mcap": 443375453
       }
     ]
   },
