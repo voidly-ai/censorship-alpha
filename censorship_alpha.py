@@ -1118,6 +1118,135 @@ def cmd_rank():
         print(f"  {status} {r['flag']} {r['name']:<15} {bar} {r['blocked']}/8")
 
 
+# Token → Exchange ecosystem mapping for censorship risk scoring
+TOKEN_EXCHANGE_MAP = {
+    # BNB ecosystem (Binance) — HIGH RISK (most blocked exchange)
+    "BNB": ("Binance", 0.9), "CAKE": ("Binance", 0.8), "BAKE": ("Binance", 0.7),
+    "XVS": ("Binance", 0.7), "BURGER": ("Binance", 0.7), "SFP": ("Binance", 0.6),
+    "TWT": ("Binance", 0.6), "BTCB": ("Binance", 0.5), "BUSD": ("Binance", 0.9),
+    # Coinbase ecosystem — MODERATE RISK
+    "COIN": ("Coinbase", 0.5), "cbETH": ("Coinbase", 0.4), "USDbC": ("Coinbase", 0.4),
+    # Decentralized / no exchange dependency — LOW RISK
+    "ETH": (None, 0.1), "BTC": (None, 0.1), "WBTC": (None, 0.1), "WETH": (None, 0.1),
+    "UNI": (None, 0.1), "AAVE": (None, 0.1), "MKR": (None, 0.1), "LDO": (None, 0.1),
+    "CRV": (None, 0.1), "COMP": (None, 0.1), "SNX": (None, 0.1), "SUSHI": (None, 0.1),
+    "1INCH": (None, 0.15), "DYDX": (None, 0.1),
+    # Stablecoins — depends on issuer
+    "USDT": (None, 0.2), "USDC": (None, 0.15), "DAI": (None, 0.05), "FRAX": (None, 0.1),
+}
+
+
+def get_token_risk(symbol):
+    """Get censorship risk score for a token based on exchange dependency."""
+    sym = symbol.upper()
+    if sym in TOKEN_EXCHANGE_MAP:
+        exchange, risk = TOKEN_EXCHANGE_MAP[sym]
+        return exchange, risk
+    # Unknown token — moderate risk by default
+    return None, 0.3
+
+
+def cmd_scan(address, chain="ethereum"):
+    """Scan a wallet for censorship exposure."""
+    print(f"\n{'═' * 60}")
+    print(f"  PORTFOLIO CENSORSHIP SCAN")
+    print(f"  {address[:8]}...{address[-6:]}")
+    print(f"{'═' * 60}\n")
+
+    # Get wallet balance
+    balance = run_nansen(
+        ["research", "profiler", "balance", "--address", address, "--chain", chain, "--limit", "20"],
+        "wallet balance"
+    )
+
+    if not balance or not balance.get("success"):
+        print("  Failed to fetch wallet. Check address and chain.")
+        return
+
+    tokens = balance.get("data", {}).get("data", [])
+    if not tokens:
+        print("  No tokens found in this wallet.")
+        return
+
+    total_value = sum(t.get("value_usd", 0) for t in tokens)
+    if total_value == 0:
+        print("  Wallet has no USD value.")
+        return
+
+    print(f"  Total Portfolio Value: ${total_value:,.2f}")
+    print(f"  Chain: {chain}")
+    print(f"  Tokens: {len(tokens)}\n")
+
+    # Score each token
+    high_risk = []
+    medium_risk = []
+    low_risk = []
+    weighted_risk = 0
+
+    print(f"  {'Token':<12} {'Value':<16} {'Weight':<8} {'Risk':<6} {'Exchange Dependency'}")
+    print(f"  {'─' * 65}")
+
+    for t in tokens:
+        sym = t.get("token_symbol", "?")
+        value = t.get("value_usd", 0)
+        weight = value / total_value if total_value > 0 else 0
+        exchange, risk = get_token_risk(sym)
+
+        weighted_risk += risk * weight
+
+        if risk >= 0.6:
+            level = "🔴 HIGH"
+            high_risk.append((sym, value, weight, exchange))
+        elif risk >= 0.3:
+            level = "🟡 MED"
+            medium_risk.append((sym, value, weight, exchange))
+        else:
+            level = "🟢 LOW"
+            low_risk.append((sym, value, weight, exchange))
+
+        dep = f"{exchange} ecosystem" if exchange else "Decentralized / independent"
+        if value > 0.01:  # Only show tokens with meaningful value
+            print(f"  {sym:<12} ${value:<14,.2f} {weight:<7.1%} {level}  {dep}")
+
+    # Overall score
+    print(f"\n{'─' * 60}")
+    overall = "🔴 HIGH" if weighted_risk > 0.5 else "🟡 ELEVATED" if weighted_risk > 0.3 else "🟢 LOW"
+    print(f"  Overall Censorship Risk: {overall} ({weighted_risk:.2f})")
+    print()
+
+    if high_risk:
+        high_val = sum(v for _, v, _, _ in high_risk)
+        high_pct = high_val / total_value * 100
+        print(f"  ⚠️  ${high_val:,.0f} ({high_pct:.0f}%) in high-risk exchange-dependent tokens")
+        exchanges_exposed = set(e for _, _, _, e in high_risk if e)
+        if exchanges_exposed:
+            # Count how many countries block each exchange
+            for ex in exchanges_exposed:
+                domain = f"{ex.lower()}.com"
+                blocked_in = sum(1 for known in KNOWN_BLOCKS.values() if domain in known)
+                print(f"     {ex}: blocked in {blocked_in} countries")
+
+    if weighted_risk > 0.3:
+        print(f"\n  💡 Recommendation: Consider reducing exchange-dependent token exposure.")
+        print(f"     Move from BNB/CAKE → ETH/UNI/AAVE for lower censorship risk.")
+
+        # Try to get a swap quote
+        if high_risk:
+            top_risk_sym = high_risk[0][0]
+            top_risk_val = high_risk[0][1]
+            suggestion_pct = min(30, int(weighted_risk * 50))
+            print(f"\n  Suggested action: Reduce {top_risk_sym} by {suggestion_pct}% (${top_risk_val * suggestion_pct / 100:,.0f})")
+
+            # Get trade quote if on supported chain
+            if chain in ("base", "solana"):
+                print(f"  Getting swap quote via Nansen trade...")
+                # Would need actual token addresses for the quote
+                # For now, show the concept
+                print(f"  (Trade execution available on {chain} via `nansen trade execute`)")
+    else:
+        print(f"\n  ✅ Portfolio has low censorship exposure. Well diversified.")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Censorship Alpha — Crypto Exchange Censorship Intelligence",
@@ -1128,16 +1257,19 @@ Interactive modes:
   --compare CN,IR,TR                  Compare countries side by side
   --signal bnb                        Real-time smart money signal for a chain
   --rank                              Quick ranking of all 15 countries
+  --scan 0xADDRESS                    Scan wallet for censorship exposure risk
+  --scan 0xADDRESS --chain bnb        Scan on a specific chain
 
 Full report:
   --report                            Generate full HTML report (17 Nansen calls)
   --report --png --json               Full report + PNG exports + JSON data
 
 Examples:
+  python3 censorship_alpha.py --rank
   python3 censorship_alpha.py --check binance.com --country Iran
   python3 censorship_alpha.py --compare China,Turkey,Nigeria
   python3 censorship_alpha.py --signal ethereum
-  python3 censorship_alpha.py --rank
+  python3 censorship_alpha.py --scan 0x28C6c06298d514Db089934071355E5743bf21d60
   python3 censorship_alpha.py --report --png --json
         """,
     )
@@ -1146,6 +1278,8 @@ Examples:
     parser.add_argument("--compare", metavar="CODES", help="Compare countries (comma-separated: CN,IR,TR)")
     parser.add_argument("--signal", metavar="CHAIN", nargs="?", const="bnb", help="Smart money signal for a chain (default: bnb)")
     parser.add_argument("--rank", action="store_true", help="Quick ranking of all monitored countries")
+    parser.add_argument("--scan", metavar="ADDRESS", help="Scan wallet for censorship exposure risk")
+    parser.add_argument("--chain", metavar="CHAIN", default="ethereum", help="Chain for --scan (default: ethereum)")
     parser.add_argument("--report", action="store_true", help="Generate full HTML report")
     parser.add_argument("--output", "-o", default="output/report.html", help="Output HTML path")
     parser.add_argument("--png", action="store_true", help="Export charts as PNG for social media")
@@ -1185,6 +1319,10 @@ Examples:
 
     if args.rank:
         cmd_rank()
+        return
+
+    if args.scan:
+        cmd_scan(args.scan, args.chain)
         return
 
     # ── Default: full report (or show help) ──
