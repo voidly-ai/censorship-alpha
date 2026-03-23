@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-23T11:04:20.144288+00:00",
+  "generated_at": "2026-03-23T11:08:56.188527+00:00",
   "sources": {
     "censorship": "Voidly API (voidly.ai) + Chainalysis 2026 + CoinGecko + Cloudwards",
     "onchain": "Nansen CLI (nansen.ai)"
@@ -8,14 +8,14 @@
     "CN": {
       "name": "China",
       "blocked": [
-        "gate.io",
-        "coinbase.com",
         "kucoin.com",
+        "binance.com",
+        "crypto.com",
+        "coinbase.com",
         "kraken.com",
         "bybit.com",
-        "crypto.com",
-        "binance.com",
-        "okx.com"
+        "okx.com",
+        "gate.io"
       ],
       "accessible": [],
       "block_count": 8,
@@ -30,14 +30,14 @@
     "EG": {
       "name": "Egypt",
       "blocked": [
-        "gate.io",
-        "coinbase.com",
         "kucoin.com",
+        "binance.com",
+        "crypto.com",
+        "coinbase.com",
         "kraken.com",
         "bybit.com",
-        "crypto.com",
-        "binance.com",
-        "okx.com"
+        "okx.com",
+        "gate.io"
       ],
       "accessible": [],
       "block_count": 8,
@@ -52,14 +52,14 @@
     "MM": {
       "name": "Myanmar",
       "blocked": [
-        "gate.io",
-        "coinbase.com",
         "kucoin.com",
+        "binance.com",
+        "crypto.com",
+        "coinbase.com",
         "kraken.com",
         "bybit.com",
-        "crypto.com",
-        "binance.com",
-        "okx.com"
+        "okx.com",
+        "gate.io"
       ],
       "accessible": [],
       "block_count": 8,
@@ -75,11 +75,11 @@
       "name": "Iran",
       "blocked": [
         "kucoin.com",
-        "binance.com",
-        "okx.com",
         "coinbase.com",
+        "kraken.com",
+        "binance.com",
         "bybit.com",
-        "kraken.com"
+        "okx.com"
       ],
       "accessible": [
         "gate.io",
@@ -97,8 +97,8 @@
     "BY": {
       "name": "Belarus",
       "blocked": [
-        "binance.com",
         "coinbase.com",
+        "binance.com",
         "kraken.com"
       ],
       "accessible": [
@@ -120,9 +120,9 @@
     "TR": {
       "name": "Turkey",
       "blocked": [
+        "kucoin.com",
         "binance.com",
-        "okx.com",
-        "kucoin.com"
+        "okx.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -189,8 +189,8 @@
     "NG": {
       "name": "Nigeria",
       "blocked": [
-        "binance.com",
-        "coinbase.com"
+        "coinbase.com",
+        "binance.com"
       ],
       "accessible": [
         "kraken.com",
@@ -352,14 +352,14 @@
     "eth_inflow_24h": 61375.303114455935,
     "eth_outflow_24h": 0,
     "eth_net_24h": 61375.303114455935,
-    "eth_net_7d": -188658.63604577596,
-    "eth_net_30d": -24503408.563044466,
+    "eth_net_7d": 1069209.3005161788,
+    "eth_net_30d": -23799229.243519567,
     "eth_tokens_tracked": 30,
     "bnb_inflow_24h": 10622.830541118876,
     "bnb_outflow_24h": 0,
     "bnb_net_24h": 10622.830541118876,
-    "bnb_net_7d": 27915.481150166117,
-    "bnb_net_30d": -751042.6426306189,
+    "bnb_net_7d": 37435.842073645,
+    "bnb_net_30d": -421653.73779718793,
     "bnb_tokens_tracked": 30,
     "sol_inflow_24h": 24990.631004707175,
     "sol_outflow_24h": 0,
@@ -367,17 +367,17 @@
     "sol_net_7d": 43881.265793649014,
     "sol_net_30d": -233516.02226731763,
     "sol_tokens_tracked": 20,
-    "base_inflow_24h": 23813.984278237243,
+    "base_inflow_24h": 23907.923582238345,
     "base_outflow_24h": 0,
-    "base_net_24h": 23813.984278237243,
-    "base_net_7d": 24277.510268825317,
-    "base_net_30d": 17840.310830226215,
+    "base_net_24h": 23907.923582238345,
+    "base_net_7d": 24371.449572826416,
+    "base_net_30d": 17934.250134227314,
     "base_tokens_tracked": 15,
-    "eth_dex_volume": 3121.6868164705165,
+    "eth_dex_volume": 3123.3267017328135,
     "eth_dex_trades": 5,
-    "bnb_dex_volume": 98036.5385553222,
+    "bnb_dex_volume": 97922.94078024595,
     "bnb_dex_trades": 30,
-    "sol_dex_volume": 11731.498151109918,
+    "sol_dex_volume": 11765.030241540553,
     "sol_dex_trades": 20
   },
   "top_movers": {
@@ -407,10 +407,10 @@
         "net_30d": -56450.064958679126
       },
       {
-        "symbol": "AAVE",
+        "symbol": "FET",
         "net_24h": 0,
-        "net_7d": 0,
-        "net_30d": -26146439.333577618
+        "net_7d": -17678.467903838336,
+        "net_30d": -17678.467903838336
       }
     ],
     "bnb": [
@@ -480,9 +480,9 @@
     "base": [
       {
         "symbol": "SPLEETER",
-        "net_24h": 3766.134117962969,
-        "net_7d": 2547.7983063076827,
-        "net_30d": 3958.4808432578657
+        "net_24h": 3860.0734219640676,
+        "net_7d": 2641.737610308781,
+        "net_30d": 4052.4201472589643
       },
       {
         "symbol": "ODOO",

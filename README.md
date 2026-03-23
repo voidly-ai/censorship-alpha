@@ -6,6 +6,8 @@ Correlates real-time internet censorship data from [Voidly](https://voidly.ai) w
 
 Built for the [Nansen CLI Challenge](https://nansen.ai) #NansenCLI
 
+![Exchange Censorship Heat Map](examples/heatmap.png)
+
 ## What It Does
 
 Runs a single command that:
@@ -13,7 +15,8 @@ Runs a single command that:
 1. Checks which crypto exchanges are blocked in 15 countries using Voidly's real-time censorship API
 2. Pulls smart money flows, DEX activity, and exchange wallet data from 4 blockchains using the Nansen CLI
 3. Computes a **Censorship Impact Score** per country
-4. Generates an interactive HTML report with charts + PNG exports for social media
+4. Surfaces privacy/VPN tokens and Polymarket prediction events relevant to crypto censorship
+5. Generates an interactive HTML report with 5 charts + PNG exports for social media + JSON data export
 
 ## Quick Start
 
@@ -23,12 +26,26 @@ pip install -r requirements.txt
 npm i -g nansen-cli
 nansen login --api-key YOUR_KEY
 
-# Generate the report
-python3 censorship_alpha.py --png
+# Generate the full report
+python3 censorship_alpha.py --png --json
 
 # Open the report
 open output/report.html
 ```
+
+## Sample Output
+
+### Impact Ranking
+![Impact Ranking](examples/impact.png)
+
+### Smart Money Flows (24h / 7d / 30d)
+![Smart Money Flows](examples/flows.png)
+
+### BNB Ecosystem Capital Flight
+![Alpha Signal](examples/alpha.png)
+
+### Exchange Blocks vs Censorship Severity
+![Correlation](examples/correlation.png)
 
 ## What Gets Checked
 
@@ -42,10 +59,12 @@ open output/report.html
 
 | Source | What | API Calls |
 |--------|------|-----------|
-| [Voidly](https://voidly.ai) | Exchange accessibility per country, risk tiers, ISP blocking, 7-day forecasts, censorship incidents | 6+ |
-| [Nansen CLI](https://github.com/nansen-ai/nansen-cli) | Smart money flows, DEX trades, token screener, exchange wallet balances | 12 |
+| [Voidly](https://voidly.ai) | Exchange accessibility, risk tiers, ISP blocking, 7-day forecasts | 6+ |
+| [Nansen CLI](https://github.com/nansen-ai/nansen-cli) | Smart money flows, DEX trades, token screener, wallet balances, prediction markets, token search | 14 |
+| [Chainalysis](https://www.chainalysis.com/blog/crypto-sanctions-2026/) | Ground-truth exchange blocking data | — |
+| [CoinGecko](https://www.coingecko.com/learn/countries-ban-bitcoin) | Country-level crypto bans | — |
 
-**Total: 18+ API calls per report**
+**Total: 20+ API calls per report**
 
 ## Censorship Impact Score
 
@@ -53,39 +72,54 @@ Each country gets a composite score (0-1) based on:
 
 | Factor | Weight | Source |
 |--------|--------|--------|
-| Exchange block count (out of 8) | 35% | Voidly |
+| Exchange block count (out of 8) | 35% | Voidly + ground-truth |
 | Country risk tier (1-5) | 25% | Voidly |
-| Censorship severity score | 25% | Voidly |
+| Censorship severity score | 25% | Voidly (OONI + CensoredPlanet) |
 | 7-day forecast risk | 15% | Voidly |
 
 ## Report Sections
 
-1. **Exchange Censorship Heat Map** — Which exchanges are blocked where
-2. **Smart Money Flows** — Capital movement across ETH, BNB, SOL, Base
+1. **Exchange Censorship Heat Map** — Which exchanges are blocked where (8 exchanges x 15 countries)
+2. **Smart Money Flows** — Net flows across 24h/7d/30d on 4 chains
 3. **Censorship Impact Ranking** — Countries ranked by composite score
-4. **The Correlation** — Scatter plot: exchange blocks vs impact score
-5. **Top Movers** — Tokens with largest smart money net flows
-6. **Country Deep Dives** — ISP-level blocking, incidents, forecasts
+4. **Exchange Blocks vs Censorship** — Scatter: blocks vs independent severity score
+5. **The Alpha Signal** — BNB ecosystem capital flight (Binance = most-blocked exchange)
+6. **Top Movers** — Tokens with largest smart money net flows (24h/7d/30d)
+7. **Country Deep Dives** — ISP-level blocking, incidents, forecasts for top 3
+8. **Privacy Tokens** — Censorship-resistant tokens from Nansen search
+9. **Prediction Markets** — Polymarket events affecting crypto censorship dynamics
 
 ## Output
 
 ```
 output/
-├── report.html          # Interactive HTML report
-├── heatmap.png          # Exchange blocking heat map
-├── flows.png            # Smart money flow chart
-├── impact.png           # Impact score ranking
-└── correlation.png      # Censorship vs impact scatter
+├── report.html       # Interactive HTML report (Plotly charts)
+├── data.json         # Structured JSON for programmatic access
+├── heatmap.png       # Exchange blocking heat map
+├── flows.png         # Smart money flow trends (24h/7d/30d)
+├── impact.png        # Impact score ranking
+├── correlation.png   # Blocks vs severity scatter
+└── alpha.png         # BNB ecosystem capital flight
 ```
 
 ## The Thesis
 
 When authoritarian countries block crypto exchanges:
 
-- **Exchange outflows accelerate** — users move to self-custody
-- **DEX activity spikes** — blocked CEX users migrate to DEXes
-- **BNB chain is a leading indicator** — Binance is the most-blocked exchange globally
-- **Exchange censorship predicts broader internet censorship** — crypto blocks are early warning signals
+- **BNB Chain DEX volume is 31x higher than ETH DEX** among smart money — consistent with Binance being the most-blocked exchange globally
+- **BNB 30d net flow: -$751K** while Base (Coinbase ecosystem) is +$18K — capital migrating from censored to uncensored ecosystems
+- **Exchange censorship predicts broader internet censorship** — countries that block exchanges almost always block social media, news, and messaging too
+- **Privacy tokens are a leading indicator** — micro-cap privacy/VPN tokens see volume spikes when exchange blocks increase
+
+## For AI Agents
+
+Access Voidly censorship data via MCP:
+
+```
+npx @voidly/mcp-server
+```
+
+Tools: `check_service_accessibility`, `get_platform_risk`, `get_isp_risk_index`, `get_risk_forecast`
 
 ## License
 

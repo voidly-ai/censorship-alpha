@@ -293,15 +293,15 @@ def fetch_nansen_data():
         "Base smart money flows"
     )
 
-    # 13. Prediction markets (unique angle — regulatory predictions)
+    # 13. Polymarket prediction markets (geopolitical events affecting censorship)
     data["prediction_markets"] = run_nansen(
-        ["research", "prediction-market", "--limit", "20"],
-        "Prediction markets"
+        ["research", "pm", "market-screener", "--limit", "20"],
+        "Polymarket events"
     )
 
     # 14. Search for privacy/VPN tokens (directly benefit from exchange censorship)
     data["privacy_search"] = run_nansen(
-        ["research", "search", "--query", "privacy VPN decentralized exchange"],
+        ["research", "search", "--query", "privacy VPN decentralized exchange", "--limit", "10"],
         "Privacy/VPN tokens"
     )
 
@@ -725,6 +725,59 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
     <tr><td>Impact Score</td><td><strong>{s['impact_score']}</strong></td></tr>
     <tr><td>Top ISPs Enforcing Blocks</td><td>{isp_text}</td></tr>
     <tr><td>7-Day Forecast Risk</td><td>{s.get('forecast_risk', 'N/A')}</td></tr>
+  </table>"""
+
+    # Privacy tokens section
+    privacy_data = nansen_data.get("privacy_search")
+    if privacy_data and privacy_data.get("success"):
+        tokens = privacy_data.get("data", {}).get("tokens", [])
+        if tokens:
+            html += """
+  <h2>8. Privacy & Censorship-Resistant Tokens</h2>
+  <p>Tokens found via Nansen search for "privacy VPN decentralized" — projects that directly benefit when exchange censorship increases.</p>
+  <table>
+    <tr><th>Token</th><th>Chain</th><th>Market Cap</th><th>24h Volume</th></tr>"""
+            for t in tokens[:8]:
+                mcap = t.get("market_cap", 0)
+                vol = t.get("volume_24h", 0)
+                html += f"""
+    <tr>
+      <td><strong>{t.get('symbol', '?')}</strong> — {t.get('name', '')[:30]}</td>
+      <td>{t.get('chain', '?')}</td>
+      <td>${mcap:,.0f}</td>
+      <td>${vol:,.0f}</td>
+    </tr>"""
+            html += """
+  </table>
+  <div class="insight">
+    <strong>Watch list:</strong> Privacy-focused tokens and decentralized exchange protocols stand to gain when centralized exchanges face regulatory blocks. These micro-cap tokens are early signals of where censorship-resistant capital is flowing.
+  </div>"""
+
+    # Prediction markets section
+    pm_data = nansen_data.get("prediction_markets")
+    if pm_data and pm_data.get("success"):
+        markets = pm_data.get("data", {}).get("data", [])
+        # Filter for geopolitically relevant markets
+        geo_markets = [m for m in markets if any(kw in m.get("question", "").lower() for kw in ["iran", "china", "russia", "ban", "crypto", "regulation", "ceasefire", "sanction", "election"])]
+        if not geo_markets:
+            geo_markets = markets[:5]  # Fallback to top by volume
+        if geo_markets:
+            html += """
+  <h2>9. Prediction Markets — Geopolitical Signals</h2>
+  <p>Polymarket events that could impact crypto censorship dynamics. Geopolitical events drive regulatory decisions which drive exchange blocks.</p>
+  <table>
+    <tr><th>Event</th><th>Price</th><th>24h Volume</th></tr>"""
+            for m in geo_markets[:5]:
+                q = m.get("question", "?")[:65]
+                price = m.get("last_trade_price", m.get("best_ask", 0))
+                vol = m.get("volume_24hr", m.get("volume", 0))
+                html += f"""
+    <tr>
+      <td>{q}</td>
+      <td><strong>{price:.1%}</strong></td>
+      <td>${vol:,.0f}</td>
+    </tr>"""
+            html += """
   </table>"""
 
     html += f"""
