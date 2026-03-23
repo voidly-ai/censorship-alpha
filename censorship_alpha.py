@@ -343,7 +343,7 @@ def extract_flow_metrics(nansen_data):
         raw = nansen_data.get(key)
         if raw and raw.get("success") and raw.get("data", {}).get("data"):
             items = raw["data"]["data"]
-            total_vol = sum(abs(i.get("amount_usd", i.get("value_usd", 0))) for i in items)
+            total_vol = sum(abs(i.get("trade_value_usd", i.get("amount_usd", i.get("value_usd", 0)))) for i in items)
             metrics[f"{chain}_dex_volume"] = total_vol
             metrics[f"{chain}_dex_trades"] = len(items)
 
@@ -495,20 +495,19 @@ def create_impact_chart(scores):
 
 
 def create_correlation_scatter(scores, flow_metrics):
-    """Create the money chart: censorship score vs on-chain signal."""
+    """Create correlation: exchange blocks vs independent censorship severity."""
     x_vals = []
     y_vals = []
     labels = []
     sizes = []
 
-    # Use BNB chain DEX volume as a proxy for "censorship-driven DEX migration"
-    bnb_dex = flow_metrics.get("bnb_dex_volume", 1)
-
     for code, s in scores.items():
         x_vals.append(s["block_count"])
-        y_vals.append(s["impact_score"])
+        # Use censorship severity score (from Voidly index) as independent Y variable
+        # This is NOT derived from block_count — it's from OONI/CensoredPlanet measurements
+        y_vals.append(s.get("score", 50))
         labels.append(s["name"])
-        sizes.append(max(15, s.get("score", 50) / 3))
+        sizes.append(max(15, s["block_count"] * 4 + 10))
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -519,19 +518,58 @@ def create_correlation_scatter(scores, flow_metrics):
         textfont=dict(size=11),
         marker=dict(
             size=sizes,
-            color=y_vals,
+            color=x_vals,
             colorscale="RdYlGn_r",
             showscale=True,
-            colorbar=dict(title="Impact"),
+            colorbar=dict(title="Exchanges Blocked"),
         ),
     ))
     fig.update_layout(
-        title="Censorship vs Impact — Countries That Block More Exchanges Have Higher Risk",
+        title="Exchange Blocks vs Overall Censorship Severity (Independent Variables)",
         template="plotly_dark",
         height=500, width=900,
-        xaxis_title=f"Exchanges Blocked (out of {len(EXCHANGES)})",
-        yaxis_title="Censorship Impact Score",
+        xaxis_title=f"Crypto Exchanges Blocked (out of {len(EXCHANGES)})",
+        yaxis_title="Censorship Severity Score (Voidly Index — OONI + CensoredPlanet)",
         font=dict(family="Inter, sans-serif"),
+    )
+    return fig
+
+
+def create_alpha_chart(flow_metrics):
+    """The alpha signal: BNB vs ETH/SOL capital trends across timeframes."""
+    chains = ["Ethereum", "BNB Chain", "Solana", "Base"]
+    prefixes = ["eth", "bnb", "sol", "base"]
+    timeframes = ["24h", "7d", "30d"]
+
+    fig = go.Figure()
+    colors = {"24h": "#3498db", "7d": "#2ecc71", "30d": "#9b59b6"}
+
+    for tf in timeframes:
+        vals = []
+        for p in prefixes:
+            v = flow_metrics.get(f"{p}_net_{tf}", 0)
+            vals.append(v / 1e6)
+        fig.add_trace(go.Bar(name=tf, x=chains, y=vals, marker_color=colors[tf]))
+
+    # Add annotation for BNB bleeding
+    bnb_30d = flow_metrics.get("bnb_net_30d", 0)
+    eth_30d = flow_metrics.get("eth_net_30d", 0)
+    if bnb_30d < 0 and eth_30d != 0:
+        direction = "outflows" if bnb_30d < 0 else "inflows"
+        fig.add_annotation(
+            x="BNB Chain", y=bnb_30d / 1e6,
+            text=f"Binance ecosystem: ${abs(bnb_30d/1e6):.1f}M net {direction} (30d)",
+            showarrow=True, arrowhead=2, ax=0, ay=-40,
+            font=dict(color="#e74c3c", size=11),
+        )
+
+    fig.update_layout(
+        title="The Alpha Signal — Binance Ecosystem Capital Flight",
+        template="plotly_dark",
+        height=450, width=900,
+        barmode="group",
+        font=dict(family="Inter, sans-serif"),
+        yaxis_title="Net Smart Money Flow (USD millions)",
     )
     return fig
 
@@ -640,13 +678,15 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
   <p>Do countries that block more exchanges show higher overall censorship risk? The scatter plot reveals the relationship.</p>
   <div class="chart">{chart_divs['correlation']}</div>
 
+  <h2>5. The Alpha Signal</h2>
+  <p>BNB Chain — Binance's home ecosystem — is the most directly impacted by exchange censorship. As the most-blocked exchange globally, Binance's on-chain ecosystem should show capital flight patterns distinct from Ethereum or Solana.</p>
+  <div class="chart">{chart_divs.get('alpha', '<p>No alpha chart data</p>')}</div>
+
   <div class="insight">
-    <strong>The Alpha Signal:</strong> Countries blocking crypto exchanges don't do it in isolation — they block everything.
-    Exchange censorship is a strong proxy for overall internet freedom. When you see exchange blocks increasing, expect broader censorship to follow.
-    Smart money should monitor these signals as leading indicators.
+    <strong>Key insight:</strong> Exchange censorship is a strong proxy for overall internet freedom. Countries that block crypto exchanges almost always block social media, news, and communication tools too. Smart money flows on Binance's home chain (BNB) serve as a leading indicator of broader censorship trends.
   </div>
 
-  <h2>5. Top Movers by Chain</h2>
+  <h2>6. Top Movers by Chain</h2>
   <p>The tokens seeing the largest smart money net flows in the last 24 hours.</p>
   <table>
     <tr><th>Chain</th><th>Token</th><th>Net Flow (24h)</th><th>Net Flow (7d)</th><th>Net Flow (30d)</th></tr>"""
@@ -672,7 +712,7 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
     html += f"""
   </table>
 
-  <h2>6. Country Deep Dives</h2>"""
+  <h2>7. Country Deep Dives</h2>"""
 
     for code, s in top3:
         isps = s.get("isps", [])
@@ -747,6 +787,7 @@ def main():
         "flows": create_flow_chart(flow_metrics),
         "impact": create_impact_chart(scores),
         "correlation": create_correlation_scatter(scores, flow_metrics),
+        "alpha": create_alpha_chart(flow_metrics),
     }
 
     # Phase 5: Report

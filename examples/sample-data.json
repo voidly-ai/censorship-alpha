@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-23T10:56:33.808703+00:00",
+  "generated_at": "2026-03-23T11:04:20.144288+00:00",
   "sources": {
     "censorship": "Voidly API (voidly.ai) + Chainalysis 2026 + CoinGecko + Cloudwards",
     "onchain": "Nansen CLI (nansen.ai)"
@@ -8,13 +8,13 @@
     "CN": {
       "name": "China",
       "blocked": [
-        "kucoin.com",
         "gate.io",
+        "coinbase.com",
+        "kucoin.com",
         "kraken.com",
         "bybit.com",
-        "binance.com",
-        "coinbase.com",
         "crypto.com",
+        "binance.com",
         "okx.com"
       ],
       "accessible": [],
@@ -30,13 +30,13 @@
     "EG": {
       "name": "Egypt",
       "blocked": [
-        "kucoin.com",
         "gate.io",
+        "coinbase.com",
+        "kucoin.com",
         "kraken.com",
         "bybit.com",
-        "binance.com",
-        "coinbase.com",
         "crypto.com",
+        "binance.com",
         "okx.com"
       ],
       "accessible": [],
@@ -52,13 +52,13 @@
     "MM": {
       "name": "Myanmar",
       "blocked": [
-        "kucoin.com",
         "gate.io",
+        "coinbase.com",
+        "kucoin.com",
         "kraken.com",
         "bybit.com",
-        "binance.com",
         "crypto.com",
-        "coinbase.com",
+        "binance.com",
         "okx.com"
       ],
       "accessible": [],
@@ -76,10 +76,10 @@
       "blocked": [
         "kucoin.com",
         "binance.com",
-        "kraken.com",
-        "bybit.com",
+        "okx.com",
         "coinbase.com",
-        "okx.com"
+        "bybit.com",
+        "kraken.com"
       ],
       "accessible": [
         "gate.io",
@@ -97,8 +97,8 @@
     "BY": {
       "name": "Belarus",
       "blocked": [
-        "coinbase.com",
         "binance.com",
+        "coinbase.com",
         "kraken.com"
       ],
       "accessible": [
@@ -120,9 +120,9 @@
     "TR": {
       "name": "Turkey",
       "blocked": [
-        "kucoin.com",
+        "binance.com",
         "okx.com",
-        "binance.com"
+        "kucoin.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -166,8 +166,8 @@
     "VN": {
       "name": "Vietnam",
       "blocked": [
-        "okx.com",
-        "binance.com"
+        "binance.com",
+        "okx.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -189,8 +189,8 @@
     "NG": {
       "name": "Nigeria",
       "blocked": [
-        "coinbase.com",
-        "binance.com"
+        "binance.com",
+        "coinbase.com"
       ],
       "accessible": [
         "kraken.com",
@@ -349,42 +349,42 @@
     }
   },
   "flow_metrics": {
-    "eth_inflow_24h": 74306.38348084816,
+    "eth_inflow_24h": 61375.303114455935,
     "eth_outflow_24h": 0,
-    "eth_net_24h": 74306.38348084816,
-    "eth_net_7d": 940054.2874267616,
-    "eth_net_30d": -20236584.709600687,
+    "eth_net_24h": 61375.303114455935,
+    "eth_net_7d": -188658.63604577596,
+    "eth_net_30d": -24503408.563044466,
     "eth_tokens_tracked": 30,
-    "bnb_inflow_24h": 6731.360102846263,
+    "bnb_inflow_24h": 10622.830541118876,
     "bnb_outflow_24h": 0,
-    "bnb_net_24h": 6731.360102846263,
-    "bnb_net_7d": -223274.47272922914,
-    "bnb_net_30d": -775759.4183360426,
+    "bnb_net_24h": 10622.830541118876,
+    "bnb_net_7d": 27915.481150166117,
+    "bnb_net_30d": -751042.6426306189,
     "bnb_tokens_tracked": 30,
     "sol_inflow_24h": 24990.631004707175,
     "sol_outflow_24h": 0,
     "sol_net_24h": 24990.631004707175,
     "sol_net_7d": 43881.265793649014,
-    "sol_net_30d": -234255.07811386778,
+    "sol_net_30d": -233516.02226731763,
     "sol_tokens_tracked": 20,
-    "base_inflow_24h": 21623.123021732084,
+    "base_inflow_24h": 23813.984278237243,
     "base_outflow_24h": 0,
-    "base_net_24h": 21623.123021732084,
-    "base_net_7d": 22921.36415161771,
-    "base_net_30d": 16484.164713018614,
+    "base_net_24h": 23813.984278237243,
+    "base_net_7d": 24277.510268825317,
+    "base_net_30d": 17840.310830226215,
     "base_tokens_tracked": 15,
-    "eth_dex_volume": 0,
+    "eth_dex_volume": 3121.6868164705165,
     "eth_dex_trades": 5,
-    "bnb_dex_volume": 0,
+    "bnb_dex_volume": 98036.5385553222,
     "bnb_dex_trades": 30,
-    "sol_dex_volume": 0,
+    "sol_dex_volume": 11731.498151109918,
     "sol_dex_trades": 20
   },
   "top_movers": {
     "eth": [
       {
         "symbol": "WTAO",
-        "net_24h": 74115.93851017798,
+        "net_24h": 61184.85814378574,
         "net_7d": 117022.47761541052,
         "net_30d": 117022.47761541052
       },
@@ -407,16 +407,16 @@
         "net_30d": -56450.064958679126
       },
       {
-        "symbol": "DEATHSTR",
+        "symbol": "AAVE",
         "net_24h": 0,
         "net_7d": 0,
-        "net_30d": -12222.90219409447
+        "net_30d": -26146439.333577618
       }
     ],
     "bnb": [
       {
         "symbol": "FREEDOM OF MONEY",
-        "net_24h": 2107.461879737262,
+        "net_24h": 5998.932318009874,
         "net_7d": 10473.33792554979,
         "net_30d": -56402.88707548774
       },
@@ -479,6 +479,12 @@
     ],
     "base": [
       {
+        "symbol": "SPLEETER",
+        "net_24h": 3766.134117962969,
+        "net_7d": 2547.7983063076827,
+        "net_30d": 3958.4808432578657
+      },
+      {
         "symbol": "ODOO",
         "net_24h": 3581.728666201733,
         "net_7d": 3581.728666201733,
@@ -495,12 +501,6 @@
         "net_24h": 2596.819429385951,
         "net_7d": 2311.0882184242932,
         "net_30d": -1566.3156606556008
-      },
-      {
-        "symbol": "SPLEETER",
-        "net_24h": 2409.9880007553666,
-        "net_7d": 1191.6521891000798,
-        "net_30d": 2602.3347260502633
       },
       {
         "symbol": "IONIC-FRAMEWORK",
