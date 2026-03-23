@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-23T11:08:56.188527+00:00",
+  "generated_at": "2026-03-23T11:15:34.843718+00:00",
   "sources": {
     "censorship": "Voidly API (voidly.ai) + Chainalysis 2026 + CoinGecko + Cloudwards",
     "onchain": "Nansen CLI (nansen.ai)"
@@ -8,14 +8,14 @@
     "CN": {
       "name": "China",
       "blocked": [
-        "kucoin.com",
-        "binance.com",
-        "crypto.com",
-        "coinbase.com",
-        "kraken.com",
-        "bybit.com",
         "okx.com",
-        "gate.io"
+        "binance.com",
+        "kraken.com",
+        "gate.io",
+        "coinbase.com",
+        "bybit.com",
+        "crypto.com",
+        "kucoin.com"
       ],
       "accessible": [],
       "block_count": 8,
@@ -30,14 +30,14 @@
     "EG": {
       "name": "Egypt",
       "blocked": [
-        "kucoin.com",
-        "binance.com",
-        "crypto.com",
-        "coinbase.com",
-        "kraken.com",
-        "bybit.com",
         "okx.com",
-        "gate.io"
+        "binance.com",
+        "kraken.com",
+        "gate.io",
+        "coinbase.com",
+        "bybit.com",
+        "crypto.com",
+        "kucoin.com"
       ],
       "accessible": [],
       "block_count": 8,
@@ -52,14 +52,14 @@
     "MM": {
       "name": "Myanmar",
       "blocked": [
-        "kucoin.com",
-        "binance.com",
-        "crypto.com",
-        "coinbase.com",
-        "kraken.com",
-        "bybit.com",
         "okx.com",
-        "gate.io"
+        "binance.com",
+        "kraken.com",
+        "gate.io",
+        "coinbase.com",
+        "bybit.com",
+        "crypto.com",
+        "kucoin.com"
       ],
       "accessible": [],
       "block_count": 8,
@@ -74,12 +74,12 @@
     "IR": {
       "name": "Iran",
       "blocked": [
-        "kucoin.com",
-        "coinbase.com",
-        "kraken.com",
-        "binance.com",
+        "okx.com",
         "bybit.com",
-        "okx.com"
+        "binance.com",
+        "kucoin.com",
+        "kraken.com",
+        "coinbase.com"
       ],
       "accessible": [
         "gate.io",
@@ -120,9 +120,9 @@
     "TR": {
       "name": "Turkey",
       "blocked": [
-        "kucoin.com",
+        "okx.com",
         "binance.com",
-        "okx.com"
+        "kucoin.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -166,8 +166,8 @@
     "VN": {
       "name": "Vietnam",
       "blocked": [
-        "binance.com",
-        "okx.com"
+        "okx.com",
+        "binance.com"
       ],
       "accessible": [
         "coinbase.com",
@@ -352,14 +352,14 @@
     "eth_inflow_24h": 61375.303114455935,
     "eth_outflow_24h": 0,
     "eth_net_24h": 61375.303114455935,
-    "eth_net_7d": 1069209.3005161788,
-    "eth_net_30d": -23799229.243519567,
+    "eth_net_7d": 1178879.3411361864,
+    "eth_net_30d": -19767261.26623114,
     "eth_tokens_tracked": 30,
     "bnb_inflow_24h": 10622.830541118876,
     "bnb_outflow_24h": 0,
     "bnb_net_24h": 10622.830541118876,
-    "bnb_net_7d": 37435.842073645,
-    "bnb_net_30d": -421653.73779718793,
+    "bnb_net_7d": 35110.32428288358,
+    "bnb_net_30d": -4926931.616032801,
     "bnb_tokens_tracked": 30,
     "sol_inflow_24h": 24990.631004707175,
     "sol_outflow_24h": 0,
@@ -367,82 +367,78 @@
     "sol_net_7d": 43881.265793649014,
     "sol_net_30d": -233516.02226731763,
     "sol_tokens_tracked": 20,
-    "base_inflow_24h": 23907.923582238345,
+    "base_inflow_24h": 23916.285269082557,
     "base_outflow_24h": 0,
-    "base_net_24h": 23907.923582238345,
-    "base_net_7d": 24371.449572826416,
-    "base_net_30d": 17934.250134227314,
+    "base_net_24h": 23916.285269082557,
+    "base_net_7d": 24379.811259670634,
+    "base_net_30d": 17942.611821071525,
     "base_tokens_tracked": 15,
-    "eth_dex_volume": 3123.3267017328135,
+    "eth_dex_volume": 3125.5601245677262,
     "eth_dex_trades": 5,
-    "bnb_dex_volume": 97922.94078024595,
+    "bnb_dex_volume": 98129.55290286908,
     "bnb_dex_trades": 30,
-    "sol_dex_volume": 11765.030241540553,
+    "sol_dex_volume": 12083.954093406473,
     "sol_dex_trades": 20
   },
   "top_movers": {
     "eth": [
       {
-        "symbol": "WTAO",
-        "net_24h": 61184.85814378574,
-        "net_7d": 117022.47761541052,
-        "net_30d": 117022.47761541052
-      },
-      {
-        "symbol": "ELX",
-        "net_24h": 123.07464315071377,
-        "net_7d": 123.07464315071377,
-        "net_30d": 123.07464315071377
-      },
-      {
-        "symbol": "MYTH",
-        "net_24h": 67.37032751947764,
-        "net_7d": 67.37032751947764,
-        "net_30d": 67.37032751947764
-      },
-      {
-        "symbol": "NAORIS",
+        "symbol": "AZTEC",
         "net_24h": 0,
         "net_7d": 0,
-        "net_30d": -56450.064958679126
+        "net_30d": -4541.346717347819,
+        "mcap": 61520616
+      },
+      {
+        "symbol": "AAVE",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": -26146439.333577618,
+        "mcap": 1602943753
       },
       {
         "symbol": "FET",
         "net_24h": 0,
         "net_7d": -17678.467903838336,
-        "net_30d": -17678.467903838336
+        "net_30d": -17678.467903838336,
+        "mcap": 467205553
+      },
+      {
+        "symbol": "ARKM",
+        "net_24h": 0,
+        "net_7d": -1547.0450689663473,
+        "net_30d": -2550.0956329297605,
+        "mcap": 57125112
+      },
+      {
+        "symbol": "SKY",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": 5387122.631338721,
+        "mcap": 1582640226
       }
     ],
     "bnb": [
       {
-        "symbol": "FREEDOM OF MONEY",
-        "net_24h": 5998.932318009874,
-        "net_7d": 10473.33792554979,
-        "net_30d": -56402.88707548774
-      },
-      {
         "symbol": "GWEI",
         "net_24h": 1728.6952107985298,
         "net_7d": 1728.6952107985298,
-        "net_30d": 1728.6952107985298
+        "net_30d": 1728.6952107985298,
+        "mcap": 71917873
       },
       {
-        "symbol": "\u6211\u7684\u5200\u76fe",
-        "net_24h": 1227.7947375270383,
-        "net_7d": -454.8959308663782,
-        "net_30d": -28288.950393895906
+        "symbol": "SOL",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": -665.0526543902548,
+        "mcap": 94676000
       },
       {
-        "symbol": "\ud83c\udf31 FOMO",
-        "net_24h": 626.1407408818844,
-        "net_7d": 626.1407408818844,
-        "net_30d": 626.1407408818844
-      },
-      {
-        "symbol": "EXCHANGE THE WORLD",
-        "net_24h": 626.1407408818844,
-        "net_7d": 626.1407408818844,
-        "net_30d": 878.2084560074271
+        "symbol": "CAR",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": -14515.769716949295,
+        "mcap": 215898080
       }
     ],
     "sol": [
@@ -450,63 +446,31 @@
         "symbol": "PUNCH",
         "net_24h": 8650.666130904217,
         "net_7d": 792.3077004735969,
-        "net_30d": -211761.03508049523
+        "net_30d": -211761.03508049523,
+        "mcap": 7681796
       },
       {
-        "symbol": "\u6211\u7684\u5200\u76fe",
-        "net_24h": 3796.479952560264,
-        "net_7d": 30691.568186141223,
-        "net_30d": -46001.55721569603
+        "symbol": "BUTTCOIN",
+        "net_24h": 68.32934502062426,
+        "net_7d": -5327.878575683088,
+        "net_30d": 5895.081627600553,
+        "mcap": 16175399
       },
       {
-        "symbol": "RETIRE",
-        "net_24h": 3561.342324539461,
-        "net_7d": 3606.5894902798887,
-        "net_30d": 7432.91334851102
-      },
-      {
-        "symbol": "DISTORTED",
-        "net_24h": 3219.821143571373,
-        "net_7d": 6748.119149898862,
-        "net_30d": 841.1867799287784
-      },
-      {
-        "symbol": "OILINU",
-        "net_24h": 1297.060227345755,
-        "net_7d": 1048.4496427936913,
-        "net_30d": 2494.2069185852642
+        "symbol": "HYPE",
+        "net_24h": 4.329272737315345,
+        "net_7d": 4.329272737315345,
+        "net_30d": -1041.2675780353618,
+        "mcap": 33534142
       }
     ],
     "base": [
       {
-        "symbol": "SPLEETER",
-        "net_24h": 3860.0734219640676,
-        "net_7d": 2641.737610308781,
-        "net_30d": 4052.4201472589643
-      },
-      {
-        "symbol": "ODOO",
-        "net_24h": 3581.728666201733,
-        "net_7d": 3581.728666201733,
-        "net_30d": 3022.369925517756
-      },
-      {
-        "symbol": "JAN",
-        "net_24h": 2804.2084651745163,
-        "net_7d": 8529.222162755093,
-        "net_30d": 9423.265081057556
-      },
-      {
-        "symbol": "CANVAS-CONFETTI",
-        "net_24h": 2596.819429385951,
-        "net_7d": 2311.0882184242932,
-        "net_30d": -1566.3156606556008
-      },
-      {
-        "symbol": "IONIC-FRAMEWORK",
-        "net_24h": 2134.1937149445375,
-        "net_7d": -1088.385578078238,
-        "net_30d": 815.3705679926944
+        "symbol": "VIRTUAL",
+        "net_24h": 645.9273792447001,
+        "net_7d": 209.92016147773387,
+        "net_30d": -14454.960595006247,
+        "mcap": 433686118
       }
     ]
   },

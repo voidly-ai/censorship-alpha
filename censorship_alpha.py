@@ -330,10 +330,14 @@ def extract_flow_metrics(nansen_data):
             metrics[f"{chain}_net_7d"] = net_7d
             metrics[f"{chain}_net_30d"] = net_30d
             metrics[f"{chain}_tokens_tracked"] = len(items)
-            # Top movers
-            sorted_items = sorted(items, key=lambda x: abs(x.get("net_flow_24h_usd", 0)), reverse=True)
+            # Top movers — filter to tokens with >$50M market cap to exclude memecoins/noise
+            real_tokens = [i for i in items if (i.get("market_cap_usd") or 0) > 50_000_000]
+            if len(real_tokens) < 3:
+                # Fallback to >$5M if not enough large-cap tokens
+                real_tokens = [i for i in items if (i.get("market_cap_usd") or 0) > 5_000_000]
+            sorted_items = sorted(real_tokens, key=lambda x: abs(x.get("net_flow_24h_usd", 0)), reverse=True)
             metrics[f"{chain}_top_movers"] = [
-                {"symbol": i.get("token_symbol", "?"), "net_24h": i.get("net_flow_24h_usd", 0), "net_7d": i.get("net_flow_7d_usd", 0), "net_30d": i.get("net_flow_30d_usd", 0)}
+                {"symbol": i.get("token_symbol", "?"), "net_24h": i.get("net_flow_24h_usd", 0), "net_7d": i.get("net_flow_7d_usd", 0), "net_30d": i.get("net_flow_30d_usd", 0), "mcap": i.get("market_cap_usd", 0)}
                 for i in sorted_items[:5]
             ]
 
@@ -689,14 +693,15 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
   <h2>6. Top Movers by Chain</h2>
   <p>The tokens seeing the largest smart money net flows in the last 24 hours.</p>
   <table>
-    <tr><th>Chain</th><th>Token</th><th>Net Flow (24h)</th><th>Net Flow (7d)</th><th>Net Flow (30d)</th></tr>"""
+    <tr><th>Chain</th><th>Token</th><th>Market Cap</th><th>Net Flow (24h)</th><th>Net Flow (7d)</th><th>Net Flow (30d)</th></tr>"""
 
     for chain, movers in top_movers.items():
-        chain_label = {"eth": "Ethereum", "bnb": "BNB", "sol": "Solana"}.get(chain, chain)
+        chain_label = {"eth": "Ethereum", "bnb": "BNB", "sol": "Solana", "base": "Base"}.get(chain, chain)
         for m in movers[:3]:
             net_24h = m.get("net_24h", 0)
             net_7d = m.get("net_7d", 0)
             net_30d = m.get("net_30d", 0)
+            mcap = m.get("mcap", 0)
             color_24 = "ok" if net_24h > 0 else "blocked"
             color_7d = "ok" if net_7d > 0 else "blocked"
             color_30d = "ok" if net_30d > 0 else "blocked"
@@ -704,6 +709,7 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
     <tr>
       <td>{chain_label}</td>
       <td><strong>{m['symbol']}</strong></td>
+      <td>${mcap:,.0f}</td>
       <td class="{color_24}">${net_24h:,.0f}</td>
       <td class="{color_7d}">${net_7d:,.0f}</td>
       <td class="{color_30d}">${net_30d:,.0f}</td>
@@ -727,31 +733,36 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
     <tr><td>7-Day Forecast Risk</td><td>{s.get('forecast_risk', 'N/A')}</td></tr>
   </table>"""
 
-    # Privacy tokens section
-    privacy_data = nansen_data.get("privacy_search")
-    if privacy_data and privacy_data.get("success"):
-        tokens = privacy_data.get("data", {}).get("tokens", [])
-        if tokens:
+    # Smart money holdings comparison (ETH vs BNB)
+    eth_hold = nansen_data.get("eth_holdings")
+    bnb_hold = nansen_data.get("bnb_holdings")
+    has_holdings = False
+    if eth_hold and eth_hold.get("success"):
+        eth_tokens = eth_hold.get("data", {}).get("data", [])
+        bnb_tokens = (bnb_hold.get("data", {}).get("data", []) if bnb_hold and bnb_hold.get("success") else [])
+        # Filter to real tokens (>$10M mcap)
+        eth_real = [t for t in eth_tokens if (t.get("market_cap_usd") or 0) > 10_000_000][:5]
+        bnb_real = [t for t in bnb_tokens if (t.get("market_cap_usd") or 0) > 10_000_000][:5]
+        if eth_real or bnb_real:
+            has_holdings = True
             html += """
-  <h2>8. Privacy & Censorship-Resistant Tokens</h2>
-  <p>Tokens found via Nansen search for "privacy VPN decentralized" — projects that directly benefit when exchange censorship increases.</p>
+  <h2>8. Smart Money Holdings — ETH vs BNB Ecosystem</h2>
+  <p>What are smart wallets holding on Ethereum vs BNB Chain? The composition reveals where institutional capital sits relative to censorship exposure.</p>
   <table>
-    <tr><th>Token</th><th>Chain</th><th>Market Cap</th><th>24h Volume</th></tr>"""
-            for t in tokens[:8]:
-                mcap = t.get("market_cap", 0)
-                vol = t.get("volume_24h", 0)
+    <tr><th>Ethereum Holdings</th><th>Market Cap</th><th>BNB Holdings</th><th>Market Cap</th></tr>"""
+            max_rows = max(len(eth_real), len(bnb_real))
+            for i in range(min(max_rows, 5)):
+                e = eth_real[i] if i < len(eth_real) else {}
+                b = bnb_real[i] if i < len(bnb_real) else {}
                 html += f"""
     <tr>
-      <td><strong>{t.get('symbol', '?')}</strong> — {t.get('name', '')[:30]}</td>
-      <td>{t.get('chain', '?')}</td>
-      <td>${mcap:,.0f}</td>
-      <td>${vol:,.0f}</td>
+      <td><strong>{e.get('token_symbol', '—')}</strong></td>
+      <td>${(e.get('market_cap_usd') or 0):,.0f}</td>
+      <td><strong>{b.get('token_symbol', '—')}</strong></td>
+      <td>${(b.get('market_cap_usd') or 0):,.0f}</td>
     </tr>"""
             html += """
-  </table>
-  <div class="insight">
-    <strong>Watch list:</strong> Privacy-focused tokens and decentralized exchange protocols stand to gain when centralized exchanges face regulatory blocks. These micro-cap tokens are early signals of where censorship-resistant capital is flowing.
-  </div>"""
+  </table>"""
 
     # Prediction markets section
     pm_data = nansen_data.get("prediction_markets")
