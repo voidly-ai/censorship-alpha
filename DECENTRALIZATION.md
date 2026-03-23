@@ -60,4 +60,4 @@ For maximum privacy today: use sealed sender mode, rotate keys regularly, and co
 
 - [Agent Relay Protocol Spec](https://msg.voidly.ai/agent-relay-protocol.md)
 - [SDK Source Code](https://github.com/voidly-ai/agent-sdk)
-- [Relay Centralization Audit](https://github.com/voidly-ai/awesome-internet-freedom/blob/main/AUDIT.md)
+- [Awesome Internet Freedom](https://github.com/voidly-ai/awesome-internet-freedom)
