@@ -10,13 +10,24 @@ Built for the [Nansen CLI Challenge](https://nansen.ai) #NansenCLI
 
 ## What It Does
 
-Runs a single command that:
+**Interactive CLI** for real-time crypto censorship intelligence:
 
-1. Checks which crypto exchanges are blocked in 15 countries using Voidly's real-time censorship API
-2. Pulls smart money flows, DEX activity, and exchange wallet data from 4 blockchains using the Nansen CLI
-3. Computes a **Censorship Impact Score** per country
-4. Surfaces privacy/VPN tokens and Polymarket prediction events relevant to crypto censorship
-5. Generates an interactive HTML report with 5 charts + PNG exports for social media + JSON data export
+```bash
+# Is Binance accessible in Turkey right now?
+python3 censorship_alpha.py --check binance.com --country Turkey
+
+# Compare censorship across countries
+python3 censorship_alpha.py --compare China,Iran,Turkey
+
+# Real-time smart money signal for BNB chain
+python3 censorship_alpha.py --signal bnb
+
+# Quick ranking of all 15 countries
+python3 censorship_alpha.py --rank
+
+# Full 10-section HTML report (17 Nansen CLI calls)
+python3 censorship_alpha.py --report --png --json
+```
 
 ## Quick Start
 
@@ -26,8 +37,11 @@ pip install -r requirements.txt
 npm i -g nansen-cli
 nansen login --api-key YOUR_KEY
 
-# Generate the full report
-python3 censorship_alpha.py --png --json
+# Try it — instant results
+python3 censorship_alpha.py --rank
+
+# Full report
+python3 censorship_alpha.py --report --png --json
 
 # Open the report
 open output/report.html

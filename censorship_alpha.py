@@ -908,12 +908,290 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 
+FLAGS = {"🇮🇷": "IR", "🇨🇳": "CN", "🇷🇺": "RU", "🇹🇷": "TR", "🇳🇬": "NG", "🇵🇰": "PK", "🇪🇬": "EG", "🇻🇳": "VN", "🇮🇳": "IN", "🇸🇦": "SA", "🇦🇪": "AE", "🇹🇭": "TH", "🇲🇲": "MM", "🇧🇾": "BY", "🇻🇪": "VE"}
+EMOJI = {v: k for k, v in FLAGS.items()}
+
+
+def resolve_country(s):
+    """Resolve a country input (code, name, or partial) to a country code."""
+    s = s.strip().upper()
+    if s in COUNTRIES:
+        return s
+    s_lower = s.lower()
+    for code, name in COUNTRIES.items():
+        if name.lower() == s_lower or name.lower().startswith(s_lower):
+            return code
+    return None
+
+
+# ─── Interactive Commands ────────────────────────────────────────────────────
+
+def cmd_check(domain, country_code):
+    """Check if a specific exchange is accessible in a country."""
+    name = COUNTRIES.get(country_code, country_code)
+    flag = EMOJI.get(country_code, "")
+    print(f"\n{flag} {name} — Checking {domain}...")
+
+    # Voidly API check
+    try:
+        resp = requests.get(f"{VOIDLY_API}/v1/accessibility/check", params={"domain": domain, "country": country_code}, timeout=10)
+        if resp.status_code == 200:
+            d = resp.json()
+            status = d.get("status", "unknown")
+        else:
+            status = "unknown"
+    except:
+        status = "error"
+
+    # Ground-truth overlay
+    known = KNOWN_BLOCKS.get(country_code, [])
+    if domain in known and status != "blocked":
+        status = "blocked (verified)"
+
+    # Get BNB chain signal
+    bnb = run_nansen(["research", "smart-money", "netflow", "--chain", "bnb", "--limit", "5", "--fields", "token_symbol,net_flow_24h_usd,net_flow_7d_usd,net_flow_30d_usd"], "BNB signal")
+    bnb_net = 0
+    if bnb and bnb.get("success"):
+        bnb_net = sum(i.get("net_flow_24h_usd", 0) for i in bnb.get("data", {}).get("data", []))
+
+    # Count total blocks for this country
+    blocked = list(set(known + ([domain] if "blocked" in status else [])))
+    total = len([d for d in EXCHANGES if d in blocked])
+
+    color = "\033[91m" if "blocked" in status else "\033[92m"
+    reset = "\033[0m"
+
+    print(f"\n  {flag} {name}: {domain}")
+    print(f"  Status: {color}{status.upper()}{reset}")
+    print(f"  Exchanges blocked: {total}/{len(EXCHANGES)}")
+    if total > 0:
+        print(f"  Blocked: {', '.join(blocked[:5])}")
+    signal = "Bearish" if bnb_net < 0 else "Neutral" if bnb_net == 0 else "Bullish"
+    print(f"  BNB Smart Money (24h): ${bnb_net:,.0f} net flow → {signal}")
+    if total >= 5:
+        print(f"\n  ⚠️  High censorship environment. Consider reducing CEX exposure in {name}.")
+    elif total >= 2:
+        print(f"\n  ⚡ Moderate restrictions. Monitor for escalation.")
+    else:
+        print(f"\n  ✅ Low restriction. Exchange access appears stable.")
+
+
+def cmd_compare(codes):
+    """Compare censorship across multiple countries."""
+    print(f"\n{'═' * 60}")
+    print(f"  COUNTRY COMPARISON")
+    print(f"{'═' * 60}\n")
+
+    rows = []
+    for code in codes:
+        name = COUNTRIES.get(code, code)
+        flag = EMOJI.get(code, "")
+        known = KNOWN_BLOCKS.get(code, [])
+
+        # API check
+        blocked_api = []
+        try:
+            resp = requests.post(f"{VOIDLY_API}/v1/accessibility/batch", json={"domains": EXCHANGES, "country": code}, timeout=15)
+            if resp.status_code == 200:
+                for c in resp.json().get("results", resp.json().get("checks", [])):
+                    if c.get("status") in ("blocked", "likely_blocked") or c.get("block_rate", 0) > 50:
+                        blocked_api.append(c.get("domain", ""))
+        except:
+            pass
+
+        merged = list(set(blocked_api + known))
+        total = len(merged)
+
+        # Risk tier
+        try:
+            resp = requests.get(f"{VOIDLY_API}/data/censorship-index.json", timeout=10)
+            tier = 3
+            if resp.status_code == 200:
+                for c in (resp.json() if isinstance(resp.json(), list) else resp.json().get("countries", [])):
+                    if c.get("code") == code:
+                        tier = c.get("riskTier", c.get("risk_tier", 3))
+                        break
+        except:
+            tier = 3
+
+        impact = total / len(EXCHANGES) * 0.35 + (5 - tier) / 4 * 0.25 + 0.25 * 0.5 + 0.15 * 0.1
+        rows.append({"code": code, "name": name, "flag": flag, "blocked": total, "tier": tier, "impact": impact, "exchanges": merged})
+
+    # Sort by impact
+    rows.sort(key=lambda r: r["impact"], reverse=True)
+
+    # Print comparison table
+    print(f"  {'Country':<20} {'Blocked':<12} {'Risk Tier':<12} {'Impact':<10}")
+    print(f"  {'─' * 54}")
+    for r in rows:
+        bar = "█" * r["blocked"] + "░" * (8 - r["blocked"])
+        print(f"  {r['flag']} {r['name']:<17} {bar} {r['blocked']}/8    Tier {r['tier']}/5     {r['impact']:.3f}")
+
+    if len(rows) >= 2:
+        top = rows[0]
+        bot = rows[-1]
+        if bot["impact"] > 0:
+            ratio = top["impact"] / bot["impact"]
+            print(f"\n  {top['name']} is {ratio:.1f}x more censored than {bot['name']}")
+
+
+def cmd_signal(chain="bnb"):
+    """Get real-time smart money signal for a chain."""
+    print(f"\n{'═' * 60}")
+    print(f"  SMART MONEY SIGNAL — {chain.upper()}")
+    print(f"{'═' * 60}\n")
+
+    # Netflow
+    nf = run_nansen(["research", "smart-money", "netflow", "--chain", chain, "--limit", "20", "--fields", "token_symbol,net_flow_24h_usd,net_flow_7d_usd,net_flow_30d_usd,market_cap_usd"], f"{chain} flows")
+
+    if not nf or not nf.get("success"):
+        print("  Failed to fetch data")
+        return
+
+    items = nf.get("data", {}).get("data", [])
+    net_24h = sum(i.get("net_flow_24h_usd", 0) for i in items)
+    net_7d = sum(i.get("net_flow_7d_usd", 0) for i in items)
+    net_30d = sum(i.get("net_flow_30d_usd", 0) for i in items)
+
+    def arrow(v):
+        if v > 0: return "\033[92m▲\033[0m"
+        elif v < 0: return "\033[91m▼\033[0m"
+        return "─"
+
+    print(f"  24h:  {arrow(net_24h)} ${net_24h:>12,.0f}")
+    print(f"   7d:  {arrow(net_7d)} ${net_7d:>12,.0f}")
+    print(f"  30d:  {arrow(net_30d)} ${net_30d:>12,.0f}")
+
+    # Overall signal
+    if net_24h < 0 and net_7d < 0 and net_30d < 0:
+        print(f"\n  📉 BEARISH — sustained outflows across all timeframes")
+    elif net_24h > 0 and net_7d > 0:
+        print(f"\n  📈 BULLISH — inflows accelerating")
+    elif net_30d < 0 and net_24h > 0:
+        print(f"\n  🔄 REVERSAL — 30d bearish but 24h turning positive")
+    else:
+        print(f"\n  ➡️  MIXED — no clear directional signal")
+
+    # Top movers
+    real = [i for i in items if (i.get("market_cap_usd") or 0) > 10_000_000]
+    top = sorted(real, key=lambda x: abs(x.get("net_flow_24h_usd", 0)), reverse=True)[:5]
+    if top:
+        print(f"\n  Top movers (>$10M mcap):")
+        for t in top:
+            n24 = t.get("net_flow_24h_usd", 0)
+            sym = t.get("token_symbol", "?")
+            print(f"    {arrow(n24)} {sym:<10} ${n24:>10,.0f} (24h)")
+
+    # DEX activity
+    dex = run_nansen(["research", "smart-money", "dex-trades", "--chain", chain, "--limit", "10"], f"{chain} DEX")
+    if dex and dex.get("success"):
+        trades = dex.get("data", {}).get("data", [])
+        total_vol = sum(t.get("trade_value_usd", 0) for t in trades)
+        print(f"\n  DEX Activity: {len(trades)} recent trades, ${total_vol:,.0f} volume")
+
+
+def cmd_rank():
+    """Quick ranking of all monitored countries."""
+    print(f"\n{'═' * 60}")
+    print(f"  EXCHANGE CENSORSHIP RANKING")
+    print(f"{'═' * 60}\n")
+
+    rows = []
+    for code, name in COUNTRIES.items():
+        known = KNOWN_BLOCKS.get(code, [])
+        # Quick API check for just Binance (saves credits)
+        api_blocked = []
+        try:
+            resp = requests.get(f"{VOIDLY_API}/v1/accessibility/check", params={"domain": "binance.com", "country": code}, timeout=5)
+            if resp.status_code == 200 and resp.json().get("status") in ("blocked", "likely_blocked"):
+                api_blocked.append("binance.com")
+        except:
+            pass
+        merged = list(set(api_blocked + known))
+        rows.append({"code": code, "name": name, "flag": EMOJI.get(code, ""), "blocked": len(merged)})
+
+    rows.sort(key=lambda r: r["blocked"], reverse=True)
+
+    for r in rows:
+        bar = "█" * r["blocked"] + "░" * (8 - r["blocked"])
+        status = "🔴" if r["blocked"] >= 6 else "🟡" if r["blocked"] >= 2 else "🟢"
+        print(f"  {status} {r['flag']} {r['name']:<15} {bar} {r['blocked']}/8")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Censorship Alpha — Crypto Exchange Censorship × On-Chain Flows")
+    parser = argparse.ArgumentParser(
+        description="Censorship Alpha — Crypto Exchange Censorship Intelligence",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Interactive modes:
+  --check binance.com --country TR    Check if exchange is accessible
+  --compare CN,IR,TR                  Compare countries side by side
+  --signal bnb                        Real-time smart money signal for a chain
+  --rank                              Quick ranking of all 15 countries
+
+Full report:
+  --report                            Generate full HTML report (17 Nansen calls)
+  --report --png --json               Full report + PNG exports + JSON data
+
+Examples:
+  python3 censorship_alpha.py --check binance.com --country Iran
+  python3 censorship_alpha.py --compare China,Turkey,Nigeria
+  python3 censorship_alpha.py --signal ethereum
+  python3 censorship_alpha.py --rank
+  python3 censorship_alpha.py --report --png --json
+        """,
+    )
+    parser.add_argument("--check", metavar="DOMAIN", help="Check if an exchange is accessible (use with --country)")
+    parser.add_argument("--country", metavar="CODE", help="Country code or name (e.g., TR, Turkey, Iran)")
+    parser.add_argument("--compare", metavar="CODES", help="Compare countries (comma-separated: CN,IR,TR)")
+    parser.add_argument("--signal", metavar="CHAIN", nargs="?", const="bnb", help="Smart money signal for a chain (default: bnb)")
+    parser.add_argument("--rank", action="store_true", help="Quick ranking of all monitored countries")
+    parser.add_argument("--report", action="store_true", help="Generate full HTML report")
     parser.add_argument("--output", "-o", default="output/report.html", help="Output HTML path")
     parser.add_argument("--png", action="store_true", help="Export charts as PNG for social media")
     parser.add_argument("--json", action="store_true", help="Export raw data as JSON for programmatic access")
     args = parser.parse_args()
+
+    # ── Interactive modes ──
+    if args.check:
+        if not args.country:
+            print("Error: --check requires --country (e.g., --country Turkey)")
+            sys.exit(1)
+        code = resolve_country(args.country)
+        if not code:
+            print(f"Unknown country: {args.country}")
+            print(f"Available: {', '.join(f'{v} ({k})' for k, v in COUNTRIES.items())}")
+            sys.exit(1)
+        cmd_check(args.check, code)
+        return
+
+    if args.compare:
+        codes = []
+        for part in args.compare.split(","):
+            code = resolve_country(part.strip())
+            if code:
+                codes.append(code)
+            else:
+                print(f"Unknown country: {part.strip()}")
+        if len(codes) >= 2:
+            cmd_compare(codes)
+        else:
+            print("Need at least 2 valid countries to compare")
+        return
+
+    if args.signal is not None:
+        cmd_signal(args.signal)
+        return
+
+    if args.rank:
+        cmd_rank()
+        return
+
+    # ── Default: full report (or show help) ──
+    if not args.report and not args.png and not args.json:
+        parser.print_help()
+        print("\n  Tip: Try --rank for a quick overview, or --report for the full analysis.")
+        return
 
     print("═══════════════════════════════════════════════════════")
     print("  🔍 Censorship Alpha")
