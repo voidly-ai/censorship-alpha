@@ -7,7 +7,7 @@ blockchain fund flows (Nansen) to reveal how smart money adapts when
 authoritarian governments block crypto exchanges.
 
 Usage:
-    python3 censorship_alpha.py [--output report.html] [--png]
+    python3 censorship_alpha.py [--output report.html] [--png] [--json]
 """
 
 import json
@@ -43,6 +43,24 @@ COUNTRIES = {
 BINANCE_HOT_WALLETS = {
     "ethereum": "0x28C6c06298d514Db089934071355E5743bf21d60",
     "bnb": "0x28C6c06298d514Db089934071355E5743bf21d60",
+}
+
+# Ground-truth exchange blocking data from published sources (2025-2026)
+# Sources: Chainalysis 2026 Crypto Crime Report, CoinGecko "18 Countries Where
+# Bitcoin Is Banned", Cloudwards "Where Is Crypto Illegal in 2026", Techloy,
+# Binance Restricted Countries lists (DeFi Race, DataWallet)
+KNOWN_BLOCKS = {
+    "CN": ["binance.com", "coinbase.com", "kraken.com", "kucoin.com", "okx.com", "bybit.com", "gate.io", "crypto.com"],  # All crypto banned since 2021
+    "EG": ["binance.com", "coinbase.com", "kraken.com", "kucoin.com", "okx.com", "bybit.com", "gate.io", "crypto.com"],  # Full crypto ban
+    "MM": ["binance.com", "coinbase.com", "kraken.com", "kucoin.com", "okx.com", "bybit.com", "gate.io", "crypto.com"],  # Military junta, internet controls
+    "IR": ["binance.com", "coinbase.com", "kraken.com", "kucoin.com", "okx.com", "bybit.com"],  # Sanctioned/blocked
+    "TR": ["binance.com", "kucoin.com", "okx.com"],  # Access restricted by regulators
+    "NG": ["binance.com", "coinbase.com"],  # ISPs directed to block
+    "BY": ["binance.com", "coinbase.com", "kraken.com"],  # Sanctions-aligned restrictions
+    "VN": ["binance.com", "okx.com"],  # Crypto banned, partially enforced
+    "PK": ["binance.com"],  # Intermittent ISP blocks
+    "SA": ["binance.com"],  # Restricted trading
+    "VE": ["binance.com"],  # Sanctions + capital controls
 }
 
 # ─── Voidly Data Collection ─────────────────────────────────────────────────
@@ -161,6 +179,21 @@ def fetch_voidly_censorship():
             except:
                 pass
 
+    # 5. Enrich with known ground-truth blocking data
+    print("  Enriching with ground-truth data...")
+    enriched = 0
+    for code, known in KNOWN_BLOCKS.items():
+        if code in results:
+            existing = set(results[code]["blocked"])
+            merged = list(existing | set(known))
+            if len(merged) > len(existing):
+                enriched += len(merged) - len(existing)
+            results[code]["blocked"] = merged
+            results[code]["accessible"] = [d for d in EXCHANGES if d not in merged]
+            results[code]["block_count"] = len(merged)
+            results[code]["block_rate"] = len(merged) / len(EXCHANGES) * 100
+    print(f"  Added {enriched} verified blocks from published sources")
+
     return results
 
 
@@ -196,13 +229,15 @@ def fetch_nansen_data():
     print("\n⛓️  Phase 2: Collecting Nansen on-chain data...")
     data = {}
 
-    # 1-2. Smart money net flows
+    NF_FIELDS = "token_symbol,net_flow_24h_usd,net_flow_7d_usd,net_flow_30d_usd,chain,token_sectors,market_cap_usd"
+
+    # 1-2. Smart money net flows (with --fields to reduce credit burn)
     data["eth_netflow"] = run_nansen(
-        ["research", "smart-money", "netflow", "--chain", "ethereum", "--limit", "30"],
+        ["research", "smart-money", "netflow", "--chain", "ethereum", "--limit", "30", "--fields", NF_FIELDS],
         "ETH smart money flows"
     )
     data["bnb_netflow"] = run_nansen(
-        ["research", "smart-money", "netflow", "--chain", "bnb", "--limit", "30"],
+        ["research", "smart-money", "netflow", "--chain", "bnb", "--limit", "30", "--fields", NF_FIELDS],
         "BNB smart money flows"
     )
 
@@ -238,7 +273,7 @@ def fetch_nansen_data():
 
     # 9-10. Solana for comparison (less censorship-affected)
     data["sol_netflow"] = run_nansen(
-        ["research", "smart-money", "netflow", "--chain", "solana", "--limit", "20"],
+        ["research", "smart-money", "netflow", "--chain", "solana", "--limit", "20", "--fields", NF_FIELDS],
         "SOL smart money flows"
     )
     data["sol_dex"] = run_nansen(
@@ -246,7 +281,7 @@ def fetch_nansen_data():
         "SOL DEX trades"
     )
 
-    # 11. Binance hot wallet balance (if profiler works)
+    # 11. Binance hot wallet balance
     data["binance_eth_wallet"] = run_nansen(
         ["research", "profiler", "balance", "--address", BINANCE_HOT_WALLETS["ethereum"], "--chain", "ethereum"],
         "Binance ETH wallet"
@@ -254,8 +289,20 @@ def fetch_nansen_data():
 
     # 12. Base chain (Coinbase ecosystem)
     data["base_netflow"] = run_nansen(
-        ["research", "smart-money", "netflow", "--chain", "base", "--limit", "15"],
+        ["research", "smart-money", "netflow", "--chain", "base", "--limit", "15", "--fields", NF_FIELDS],
         "Base smart money flows"
+    )
+
+    # 13. Prediction markets (unique angle — regulatory predictions)
+    data["prediction_markets"] = run_nansen(
+        ["research", "prediction-market", "--limit", "20"],
+        "Prediction markets"
+    )
+
+    # 14. Search for privacy/VPN tokens (directly benefit from exchange censorship)
+    data["privacy_search"] = run_nansen(
+        ["research", "search", "--query", "privacy VPN decentralized exchange"],
+        "Privacy/VPN tokens"
     )
 
     return data
@@ -275,14 +322,18 @@ def extract_flow_metrics(nansen_data):
             total_inflow = sum(abs(i.get("net_flow_24h_usd", 0)) for i in items if i.get("net_flow_24h_usd", 0) > 0)
             total_outflow = sum(abs(i.get("net_flow_24h_usd", 0)) for i in items if i.get("net_flow_24h_usd", 0) < 0)
             net = sum(i.get("net_flow_24h_usd", 0) for i in items)
+            net_7d = sum(i.get("net_flow_7d_usd", 0) for i in items)
+            net_30d = sum(i.get("net_flow_30d_usd", 0) for i in items)
             metrics[f"{chain}_inflow_24h"] = total_inflow
             metrics[f"{chain}_outflow_24h"] = total_outflow
             metrics[f"{chain}_net_24h"] = net
+            metrics[f"{chain}_net_7d"] = net_7d
+            metrics[f"{chain}_net_30d"] = net_30d
             metrics[f"{chain}_tokens_tracked"] = len(items)
             # Top movers
             sorted_items = sorted(items, key=lambda x: abs(x.get("net_flow_24h_usd", 0)), reverse=True)
             metrics[f"{chain}_top_movers"] = [
-                {"symbol": i.get("token_symbol", "?"), "net_24h": i.get("net_flow_24h_usd", 0), "net_7d": i.get("net_flow_7d_usd", 0)}
+                {"symbol": i.get("token_symbol", "?"), "net_24h": i.get("net_flow_24h_usd", 0), "net_7d": i.get("net_flow_7d_usd", 0), "net_30d": i.get("net_flow_30d_usd", 0)}
                 for i in sorted_items[:5]
             ]
 
@@ -367,33 +418,45 @@ def create_heatmap(scores):
 
 
 def create_flow_chart(flow_metrics):
-    """Create smart money flow comparison chart."""
+    """Create smart money flow comparison chart with 24h/7d/30d trends."""
     chains = []
-    inflows = []
-    outflows = []
-    nets = []
+    net_24h = []
+    net_7d = []
+    net_30d = []
 
     for chain, label in [("eth", "Ethereum"), ("bnb", "BNB Chain"), ("sol", "Solana"), ("base", "Base")]:
+        n24 = flow_metrics.get(f"{chain}_net_24h", 0)
+        n7 = flow_metrics.get(f"{chain}_net_7d", 0)
+        n30 = flow_metrics.get(f"{chain}_net_30d", 0)
+        if n24 != 0 or n7 != 0 or n30 != 0:
+            chains.append(label)
+            net_24h.append(n24 / 1e6)
+            net_7d.append(n7 / 1e6)
+            net_30d.append(n30 / 1e6)
+
+    fig = make_subplots(rows=1, cols=2, subplot_titles=["Net Smart Money Flow by Timeframe", "Inflow vs Outflow (24h)"])
+
+    # Left: 24h / 7d / 30d grouped bars
+    fig.add_trace(go.Bar(name="24h", x=chains, y=net_24h, marker_color="#3498db"), row=1, col=1)
+    fig.add_trace(go.Bar(name="7d", x=chains, y=net_7d, marker_color="#2ecc71"), row=1, col=1)
+    fig.add_trace(go.Bar(name="30d", x=chains, y=net_30d, marker_color="#9b59b6"), row=1, col=1)
+
+    # Right: Inflow vs outflow
+    inflows = []
+    outflows = []
+    for chain in ["eth", "bnb", "sol", "base"]:
         inf = flow_metrics.get(f"{chain}_inflow_24h", 0)
         outf = flow_metrics.get(f"{chain}_outflow_24h", 0)
-        net = flow_metrics.get(f"{chain}_net_24h", 0)
         if inf > 0 or outf > 0:
-            chains.append(label)
             inflows.append(inf / 1e6)
             outflows.append(-outf / 1e6)
-            nets.append(net / 1e6)
-
-    fig = make_subplots(rows=1, cols=2, subplot_titles=["Smart Money Flows (24h)", "Net Flow by Chain"])
-
-    fig.add_trace(go.Bar(name="Inflows", x=chains, y=inflows, marker_color="#2ecc71"), row=1, col=1)
-    fig.add_trace(go.Bar(name="Outflows", x=chains, y=outflows, marker_color="#e74c3c"), row=1, col=1)
-
-    colors = ["#2ecc71" if n >= 0 else "#e74c3c" for n in nets]
-    fig.add_trace(go.Bar(name="Net Flow", x=chains, y=nets, marker_color=colors), row=1, col=2)
+    if inflows:
+        fig.add_trace(go.Bar(name="Inflows", x=chains[:len(inflows)], y=inflows, marker_color="#2ecc71"), row=1, col=2)
+        fig.add_trace(go.Bar(name="Outflows", x=chains[:len(outflows)], y=outflows, marker_color="#e74c3c"), row=1, col=2)
 
     fig.update_layout(
         template="plotly_dark",
-        title="Smart Money Capital Flows — Where Is Money Moving?",
+        title="Smart Money Capital Flows — Trends Across Timeframes",
         height=450, width=900,
         barmode="group",
         font=dict(family="Inter, sans-serif"),
@@ -586,21 +649,24 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
   <h2>5. Top Movers by Chain</h2>
   <p>The tokens seeing the largest smart money net flows in the last 24 hours.</p>
   <table>
-    <tr><th>Chain</th><th>Token</th><th>Net Flow (24h)</th><th>Net Flow (7d)</th></tr>"""
+    <tr><th>Chain</th><th>Token</th><th>Net Flow (24h)</th><th>Net Flow (7d)</th><th>Net Flow (30d)</th></tr>"""
 
     for chain, movers in top_movers.items():
         chain_label = {"eth": "Ethereum", "bnb": "BNB", "sol": "Solana"}.get(chain, chain)
         for m in movers[:3]:
             net_24h = m.get("net_24h", 0)
             net_7d = m.get("net_7d", 0)
+            net_30d = m.get("net_30d", 0)
             color_24 = "ok" if net_24h > 0 else "blocked"
             color_7d = "ok" if net_7d > 0 else "blocked"
+            color_30d = "ok" if net_30d > 0 else "blocked"
             html += f"""
     <tr>
       <td>{chain_label}</td>
       <td><strong>{m['symbol']}</strong></td>
       <td class="{color_24}">${net_24h:,.0f}</td>
       <td class="{color_7d}">${net_7d:,.0f}</td>
+      <td class="{color_30d}">${net_30d:,.0f}</td>
     </tr>"""
 
     html += f"""
@@ -628,8 +694,9 @@ def generate_report(scores, flow_metrics, nansen_data, charts, output_path, expo
   <ul style="margin: 0.5rem 0 0 1.5rem;">
     <li><strong>Voidly</strong> (<a href="https://voidly.ai">voidly.ai</a>) — Real-time internet censorship monitoring across {len(COUNTRIES)} countries. Tests {len(EXCHANGES)} major crypto exchanges for DNS, TCP, TLS, and HTTP blocking using OONI, CensoredPlanet, and community probe data.</li>
     <li><strong>Nansen</strong> (<a href="https://nansen.ai">nansen.ai</a>) — On-chain analytics tracking smart money flows, DEX activity, and exchange wallet balances across Ethereum, BNB Chain, Solana, and Base.</li>
+    <li><strong>Ground-truth sources</strong> — Exchange blocking data enriched with verified reports from <a href="https://www.chainalysis.com/blog/crypto-sanctions-2026/">Chainalysis 2026 Crypto Crime Report</a>, <a href="https://www.coingecko.com/learn/countries-ban-bitcoin">CoinGecko</a>, <a href="https://www.cloudwards.net/where-is-crypto-illegal/">Cloudwards</a>, and <a href="https://defirace.com/binance-restricted-countries-complete-list-for-crypto-trading-in">DeFi Race</a>.</li>
   </ul>
-  <p style="margin-top: 0.75rem;">The Censorship Impact Score combines exchange block count (35%), country risk tier (25%), censorship severity (25%), and 7-day forecast risk (15%).</p>
+  <p style="margin-top: 0.75rem;">The Censorship Impact Score combines exchange block count (35%), country risk tier (25%), censorship severity (25%), and 7-day forecast risk (15%). Exchange blocking data merges real-time API monitoring with verified ground-truth from published regulatory and research sources.</p>
 
   <div class="footer">
     <p>Built with <a href="https://github.com/nansen-ai/nansen-cli">Nansen CLI</a> + <a href="https://voidly.ai">Voidly API</a></p>
@@ -650,6 +717,7 @@ def main():
     parser = argparse.ArgumentParser(description="Censorship Alpha — Crypto Exchange Censorship × On-Chain Flows")
     parser.add_argument("--output", "-o", default="output/report.html", help="Output HTML path")
     parser.add_argument("--png", action="store_true", help="Export charts as PNG for social media")
+    parser.add_argument("--json", action="store_true", help="Export raw data as JSON for programmatic access")
     args = parser.parse_args()
 
     print("═══════════════════════════════════════════════════════")
@@ -686,10 +754,29 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
     generate_report(scores, flow_metrics, nansen_data, charts, output_path, export_png=args.png)
 
+    # Phase 6: JSON export (for AI agents and programmatic access)
+    if args.json:
+        json_path = output_path.parent / "data.json"
+        json_export = {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "sources": {
+                "censorship": "Voidly API (voidly.ai) + Chainalysis 2026 + CoinGecko + Cloudwards",
+                "onchain": "Nansen CLI (nansen.ai)",
+            },
+            "countries": {code: {k: v for k, v in s.items() if k != "isps"} for code, s in scores.items()},
+            "flow_metrics": {k: v for k, v in flow_metrics.items() if not k.endswith("_top_movers")},
+            "top_movers": {k.replace("_top_movers", ""): v for k, v in flow_metrics.items() if k.endswith("_top_movers")},
+            "impact_ranking": [{"country": code, "name": s["name"], "score": s["impact_score"], "blocked": s["block_count"]} for code, s in scores.items()],
+        }
+        json_path.write_text(json.dumps(json_export, indent=2))
+        print(f"  📦 JSON data exported to {json_path}")
+
     print("\n═══════════════════════════════════════════════════════")
     print(f"  ✅ Done! Open {output_path} in your browser.")
     if args.png:
         print(f"  📸 PNG charts saved in {output_path.parent}/")
+    if args.json:
+        print(f"  📦 JSON data saved to {output_path.parent}/data.json")
     print("═══════════════════════════════════════════════════════")
 
 

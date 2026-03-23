@@ -1,0 +1,56 @@
+# Censorship Alpha
+> When countries block crypto exchanges, where does the money go?
+
+Correlates real-time internet censorship data (Voidly) with on-chain
+blockchain fund flows (Nansen). Generates interactive HTML reports
+showing which countries block which exchanges and how smart money
+responds on-chain.
+
+## Usage
+python3 censorship_alpha.py [--output path.html] [--png] [--json]
+
+## Flags
+- --png: Export charts as PNG images for social media
+- --json: Export raw correlation data as structured JSON
+- --output: Specify output HTML path (default: output/report.html)
+
+## Data Sources
+- Voidly API (https://api.voidly.ai) — exchange accessibility checks,
+  country risk tiers, ISP blocking data, 7-day shutdown forecasts,
+  censorship incidents. Public endpoints, no auth required.
+- Nansen CLI (npm i -g nansen-cli) — smart money net flows, DEX trades,
+  token screener, wallet profiler, prediction markets. Requires API key.
+- Ground-truth: Chainalysis 2026, CoinGecko, Cloudwards regulatory data.
+
+## Monitored Exchanges (8)
+binance.com, coinbase.com, kraken.com, kucoin.com, okx.com, bybit.com,
+gate.io, crypto.com
+
+## Countries Analyzed (15)
+Iran, China, Russia, Turkey, Nigeria, Pakistan, Egypt, Vietnam, India,
+Saudi Arabia, UAE, Thailand, Myanmar, Belarus, Venezuela
+
+## Chains Tracked (4)
+Ethereum, BNB Chain, Solana, Base
+
+## Output Files
+- output/report.html — Interactive HTML report with Plotly charts
+- output/data.json — Structured JSON for programmatic access
+- output/heatmap.png — Exchange blocking heat map
+- output/flows.png — Smart money flow trends (24h/7d/30d)
+- output/impact.png — Censorship impact score ranking
+- output/correlation.png — Censorship vs impact scatter plot
+
+## For AI Agents (MCP)
+Access Voidly censorship data via MCP server:
+  npx @voidly/mcp-server
+Tools: check_service_accessibility, get_platform_risk, get_isp_risk_index,
+       get_risk_forecast, get_active_incidents
+
+## Install
+pip install requests plotly jinja2 kaleido
+npm i -g nansen-cli
+nansen login --api-key YOUR_KEY
+
+## License
+MIT — Built by Voidly (https://voidly.ai) with Nansen CLI

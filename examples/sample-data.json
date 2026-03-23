@@ -1,0 +1,605 @@
+{
+  "generated_at": "2026-03-23T10:56:33.808703+00:00",
+  "sources": {
+    "censorship": "Voidly API (voidly.ai) + Chainalysis 2026 + CoinGecko + Cloudwards",
+    "onchain": "Nansen CLI (nansen.ai)"
+  },
+  "countries": {
+    "CN": {
+      "name": "China",
+      "blocked": [
+        "kucoin.com",
+        "gate.io",
+        "kraken.com",
+        "bybit.com",
+        "binance.com",
+        "coinbase.com",
+        "crypto.com",
+        "okx.com"
+      ],
+      "accessible": [],
+      "block_count": 8,
+      "block_rate": 100.0,
+      "risk_tier": 3,
+      "score": 66,
+      "impact_score": 0.655,
+      "block_score": 1.0,
+      "risk_norm": 0.5,
+      "censorship_score": 0.66
+    },
+    "EG": {
+      "name": "Egypt",
+      "blocked": [
+        "kucoin.com",
+        "gate.io",
+        "kraken.com",
+        "bybit.com",
+        "binance.com",
+        "coinbase.com",
+        "crypto.com",
+        "okx.com"
+      ],
+      "accessible": [],
+      "block_count": 8,
+      "block_rate": 100.0,
+      "risk_tier": 3,
+      "score": 12,
+      "impact_score": 0.52,
+      "block_score": 1.0,
+      "risk_norm": 0.5,
+      "censorship_score": 0.12
+    },
+    "MM": {
+      "name": "Myanmar",
+      "blocked": [
+        "kucoin.com",
+        "gate.io",
+        "kraken.com",
+        "bybit.com",
+        "binance.com",
+        "crypto.com",
+        "coinbase.com",
+        "okx.com"
+      ],
+      "accessible": [],
+      "block_count": 8,
+      "block_rate": 100.0,
+      "risk_tier": 3,
+      "score": 11,
+      "impact_score": 0.517,
+      "block_score": 1.0,
+      "risk_norm": 0.5,
+      "censorship_score": 0.11
+    },
+    "IR": {
+      "name": "Iran",
+      "blocked": [
+        "kucoin.com",
+        "binance.com",
+        "kraken.com",
+        "bybit.com",
+        "coinbase.com",
+        "okx.com"
+      ],
+      "accessible": [
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 6,
+      "block_rate": 75.0,
+      "risk_tier": 3,
+      "score": 13,
+      "impact_score": 0.435,
+      "block_score": 0.75,
+      "risk_norm": 0.5,
+      "censorship_score": 0.13
+    },
+    "BY": {
+      "name": "Belarus",
+      "blocked": [
+        "coinbase.com",
+        "binance.com",
+        "kraken.com"
+      ],
+      "accessible": [
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 3,
+      "block_rate": 37.5,
+      "risk_tier": 3,
+      "score": 11,
+      "impact_score": 0.299,
+      "block_score": 0.38,
+      "risk_norm": 0.5,
+      "censorship_score": 0.11
+    },
+    "TR": {
+      "name": "Turkey",
+      "blocked": [
+        "kucoin.com",
+        "okx.com",
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 3,
+      "block_rate": 37.5,
+      "risk_tier": 3,
+      "score": 5,
+      "impact_score": 0.284,
+      "block_score": 0.38,
+      "risk_norm": 0.5,
+      "censorship_score": 0.05
+    },
+    "RU": {
+      "name": "Russia",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 31,
+      "impact_score": 0.261,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.31
+    },
+    "VN": {
+      "name": "Vietnam",
+      "blocked": [
+        "okx.com",
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 2,
+      "block_rate": 25.0,
+      "risk_tier": 3,
+      "score": 7,
+      "impact_score": 0.245,
+      "block_score": 0.25,
+      "risk_norm": 0.5,
+      "censorship_score": 0.07
+    },
+    "NG": {
+      "name": "Nigeria",
+      "blocked": [
+        "coinbase.com",
+        "binance.com"
+      ],
+      "accessible": [
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 2,
+      "block_rate": 25.0,
+      "risk_tier": 3,
+      "score": 5,
+      "impact_score": 0.24,
+      "block_score": 0.25,
+      "risk_norm": 0.5,
+      "censorship_score": 0.05
+    },
+    "VE": {
+      "name": "Venezuela",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 17,
+      "impact_score": 0.226,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.17
+    },
+    "AE": {
+      "name": "UAE",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 14,
+      "impact_score": 0.219,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.14
+    },
+    "PK": {
+      "name": "Pakistan",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 12,
+      "impact_score": 0.214,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.12
+    },
+    "SA": {
+      "name": "Saudi Arabia",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 11,
+      "impact_score": 0.211,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.11
+    },
+    "IN": {
+      "name": "India",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 3,
+      "impact_score": 0.191,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.03
+    },
+    "TH": {
+      "name": "Thailand",
+      "blocked": [
+        "binance.com"
+      ],
+      "accessible": [
+        "coinbase.com",
+        "kraken.com",
+        "kucoin.com",
+        "okx.com",
+        "bybit.com",
+        "gate.io",
+        "crypto.com"
+      ],
+      "block_count": 1,
+      "block_rate": 12.5,
+      "risk_tier": 3,
+      "score": 2,
+      "impact_score": 0.189,
+      "block_score": 0.12,
+      "risk_norm": 0.5,
+      "censorship_score": 0.02
+    }
+  },
+  "flow_metrics": {
+    "eth_inflow_24h": 74306.38348084816,
+    "eth_outflow_24h": 0,
+    "eth_net_24h": 74306.38348084816,
+    "eth_net_7d": 940054.2874267616,
+    "eth_net_30d": -20236584.709600687,
+    "eth_tokens_tracked": 30,
+    "bnb_inflow_24h": 6731.360102846263,
+    "bnb_outflow_24h": 0,
+    "bnb_net_24h": 6731.360102846263,
+    "bnb_net_7d": -223274.47272922914,
+    "bnb_net_30d": -775759.4183360426,
+    "bnb_tokens_tracked": 30,
+    "sol_inflow_24h": 24990.631004707175,
+    "sol_outflow_24h": 0,
+    "sol_net_24h": 24990.631004707175,
+    "sol_net_7d": 43881.265793649014,
+    "sol_net_30d": -234255.07811386778,
+    "sol_tokens_tracked": 20,
+    "base_inflow_24h": 21623.123021732084,
+    "base_outflow_24h": 0,
+    "base_net_24h": 21623.123021732084,
+    "base_net_7d": 22921.36415161771,
+    "base_net_30d": 16484.164713018614,
+    "base_tokens_tracked": 15,
+    "eth_dex_volume": 0,
+    "eth_dex_trades": 5,
+    "bnb_dex_volume": 0,
+    "bnb_dex_trades": 30,
+    "sol_dex_volume": 0,
+    "sol_dex_trades": 20
+  },
+  "top_movers": {
+    "eth": [
+      {
+        "symbol": "WTAO",
+        "net_24h": 74115.93851017798,
+        "net_7d": 117022.47761541052,
+        "net_30d": 117022.47761541052
+      },
+      {
+        "symbol": "ELX",
+        "net_24h": 123.07464315071377,
+        "net_7d": 123.07464315071377,
+        "net_30d": 123.07464315071377
+      },
+      {
+        "symbol": "MYTH",
+        "net_24h": 67.37032751947764,
+        "net_7d": 67.37032751947764,
+        "net_30d": 67.37032751947764
+      },
+      {
+        "symbol": "NAORIS",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": -56450.064958679126
+      },
+      {
+        "symbol": "DEATHSTR",
+        "net_24h": 0,
+        "net_7d": 0,
+        "net_30d": -12222.90219409447
+      }
+    ],
+    "bnb": [
+      {
+        "symbol": "FREEDOM OF MONEY",
+        "net_24h": 2107.461879737262,
+        "net_7d": 10473.33792554979,
+        "net_30d": -56402.88707548774
+      },
+      {
+        "symbol": "GWEI",
+        "net_24h": 1728.6952107985298,
+        "net_7d": 1728.6952107985298,
+        "net_30d": 1728.6952107985298
+      },
+      {
+        "symbol": "\u6211\u7684\u5200\u76fe",
+        "net_24h": 1227.7947375270383,
+        "net_7d": -454.8959308663782,
+        "net_30d": -28288.950393895906
+      },
+      {
+        "symbol": "\ud83c\udf31 FOMO",
+        "net_24h": 626.1407408818844,
+        "net_7d": 626.1407408818844,
+        "net_30d": 626.1407408818844
+      },
+      {
+        "symbol": "EXCHANGE THE WORLD",
+        "net_24h": 626.1407408818844,
+        "net_7d": 626.1407408818844,
+        "net_30d": 878.2084560074271
+      }
+    ],
+    "sol": [
+      {
+        "symbol": "PUNCH",
+        "net_24h": 8650.666130904217,
+        "net_7d": 792.3077004735969,
+        "net_30d": -211761.03508049523
+      },
+      {
+        "symbol": "\u6211\u7684\u5200\u76fe",
+        "net_24h": 3796.479952560264,
+        "net_7d": 30691.568186141223,
+        "net_30d": -46001.55721569603
+      },
+      {
+        "symbol": "RETIRE",
+        "net_24h": 3561.342324539461,
+        "net_7d": 3606.5894902798887,
+        "net_30d": 7432.91334851102
+      },
+      {
+        "symbol": "DISTORTED",
+        "net_24h": 3219.821143571373,
+        "net_7d": 6748.119149898862,
+        "net_30d": 841.1867799287784
+      },
+      {
+        "symbol": "OILINU",
+        "net_24h": 1297.060227345755,
+        "net_7d": 1048.4496427936913,
+        "net_30d": 2494.2069185852642
+      }
+    ],
+    "base": [
+      {
+        "symbol": "ODOO",
+        "net_24h": 3581.728666201733,
+        "net_7d": 3581.728666201733,
+        "net_30d": 3022.369925517756
+      },
+      {
+        "symbol": "JAN",
+        "net_24h": 2804.2084651745163,
+        "net_7d": 8529.222162755093,
+        "net_30d": 9423.265081057556
+      },
+      {
+        "symbol": "CANVAS-CONFETTI",
+        "net_24h": 2596.819429385951,
+        "net_7d": 2311.0882184242932,
+        "net_30d": -1566.3156606556008
+      },
+      {
+        "symbol": "SPLEETER",
+        "net_24h": 2409.9880007553666,
+        "net_7d": 1191.6521891000798,
+        "net_30d": 2602.3347260502633
+      },
+      {
+        "symbol": "IONIC-FRAMEWORK",
+        "net_24h": 2134.1937149445375,
+        "net_7d": -1088.385578078238,
+        "net_30d": 815.3705679926944
+      }
+    ]
+  },
+  "impact_ranking": [
+    {
+      "country": "CN",
+      "name": "China",
+      "score": 0.655,
+      "blocked": 8
+    },
+    {
+      "country": "EG",
+      "name": "Egypt",
+      "score": 0.52,
+      "blocked": 8
+    },
+    {
+      "country": "MM",
+      "name": "Myanmar",
+      "score": 0.517,
+      "blocked": 8
+    },
+    {
+      "country": "IR",
+      "name": "Iran",
+      "score": 0.435,
+      "blocked": 6
+    },
+    {
+      "country": "BY",
+      "name": "Belarus",
+      "score": 0.299,
+      "blocked": 3
+    },
+    {
+      "country": "TR",
+      "name": "Turkey",
+      "score": 0.284,
+      "blocked": 3
+    },
+    {
+      "country": "RU",
+      "name": "Russia",
+      "score": 0.261,
+      "blocked": 1
+    },
+    {
+      "country": "VN",
+      "name": "Vietnam",
+      "score": 0.245,
+      "blocked": 2
+    },
+    {
+      "country": "NG",
+      "name": "Nigeria",
+      "score": 0.24,
+      "blocked": 2
+    },
+    {
+      "country": "VE",
+      "name": "Venezuela",
+      "score": 0.226,
+      "blocked": 1
+    },
+    {
+      "country": "AE",
+      "name": "UAE",
+      "score": 0.219,
+      "blocked": 1
+    },
+    {
+      "country": "PK",
+      "name": "Pakistan",
+      "score": 0.214,
+      "blocked": 1
+    },
+    {
+      "country": "SA",
+      "name": "Saudi Arabia",
+      "score": 0.211,
+      "blocked": 1
+    },
+    {
+      "country": "IN",
+      "name": "India",
+      "score": 0.191,
+      "blocked": 1
+    },
+    {
+      "country": "TH",
+      "name": "Thailand",
+      "score": 0.189,
+      "blocked": 1
+    }
+  ]
+}
